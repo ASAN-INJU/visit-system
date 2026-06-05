@@ -12,6 +12,13 @@ body{
     margin:20px;
 }
 
+.summary{
+    background:#f5f5f5;
+    padding:15px;
+    border-radius:10px;
+    margin-bottom:20px;
+}
+
 .card{
     border:1px solid #ccc;
     border-radius:10px;
@@ -35,29 +42,97 @@ button{
 
 <h2>호별 방문 기록</h2>
 
-<div class="card">
-    <h3>현대로1232</h3>
-    <p>유진에어테크</p>
-
-    <div class="status">상태 : 미방문</div>
-
-    <button>방문함</button>
-    <button>부재중</button>
-    <button>방문거절</button>
-    <button>폐문부재</button>
+<div class="summary">
+    <div>전체 : <span id="total">0</span>집</div>
+    <div>방문완료 : <span id="done">0</span>집</div>
+    <div>진행률 : <span id="percent">0</span>%</div>
 </div>
 
-<div class="card">
-    <h3>현대로1230</h3>
-    <p>유진테크 사랑방</p>
+<div id="list"></div>
 
-    <div class="status">상태 : 미방문</div>
+<script>
 
-    <button>방문함</button>
-    <button>부재중</button>
-    <button>방문거절</button>
-    <button>폐문부재</button>
-</div>
+const houses = [
+    {
+        address:"현대로1232",
+        name:"유진에어테크",
+        status:"미방문"
+    },
+    {
+        address:"현대로1230",
+        name:"유진테크 사랑방",
+        status:"미방문"
+    }
+];
+
+function updateSummary(){
+
+    const total = houses.length;
+
+    const done = houses.filter(
+        h => h.status !== "미방문"
+    ).length;
+
+    const percent =
+        Math.round(done / total * 100);
+
+    document.getElementById("total").innerText = total;
+    document.getElementById("done").innerText = done;
+    document.getElementById("percent").innerText = percent;
+}
+
+function setStatus(index,status){
+
+    houses[index].status = status;
+
+    render();
+}
+
+function render(){
+
+    let html = "";
+
+    houses.forEach((house,index)=>{
+
+        html += `
+        <div class="card">
+
+            <h3>${house.address}</h3>
+
+            <p>${house.name}</p>
+
+            <div class="status">
+            상태 : ${house.status}
+            </div>
+
+            <button onclick="setStatus(${index},'방문함')">
+            방문함
+            </button>
+
+            <button onclick="setStatus(${index},'부재중')">
+            부재중
+            </button>
+
+            <button onclick="setStatus(${index},'방문거절')">
+            방문거절
+            </button>
+
+            <button onclick="setStatus(${index},'폐문부재')">
+            폐문부재
+            </button>
+
+        </div>
+        `;
+    });
+
+    document.getElementById("list").innerHTML = html;
+
+    updateSummary();
+}
+
+render();
+
+</script>
 
 </body>
 </html>
