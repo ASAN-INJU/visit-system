@@ -50,9 +50,7 @@ button{
 
 <div id="list"></div>
 
-<script>
-
-const houses = [
+let houses = [
     {
         address:"현대로1232",
         name:"유진에어테크",
@@ -64,7 +62,11 @@ const houses = [
         status:"미방문"
     }
 ];
+const savedData = localStorage.getItem("houses");
 
+if(savedData){
+    houses = JSON.parse(savedData);
+}
 function updateSummary(){
 
     const total = houses.length;
@@ -84,6 +86,11 @@ function updateSummary(){
 function setStatus(index,status){
 
     houses[index].status = status;
+
+    localStorage.setItem(
+        "houses",
+        JSON.stringify(houses)
+    );
 
     render();
 }
