@@ -3,29 +3,24 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>구역 방문 시스템 V1</title>
+<title>구역 방문 시스템 V2 (자동 배정)</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 
 <style>
 body{font-family:Arial;margin:0;}
 
-/* 구역 선택 화면 */
-#zoneList{
+#login{
     padding:20px;
 }
+
+#app{display:none;}
 
 .zoneBtn{
     display:block;
     width:100%;
     padding:10px;
     margin:5px 0;
-    font-size:16px;
-}
-
-/* 앱 화면 */
-#app{
-    display:none;
 }
 
 .container{
@@ -33,26 +28,19 @@ body{font-family:Arial;margin:0;}
     height:100vh;
 }
 
-#map{
-    width:60%;
-}
-
-#panel{
-    width:40%;
-    overflow:auto;
-    padding:10px;
-}
-
-.summary{
-    background:#f5f5f5;
-    padding:10px;
-}
+#map{width:60%;}
+#panel{width:40%;overflow:auto;padding:10px;}
 
 .card{
     border:1px solid #ccc;
     padding:10px;
     margin:10px 0;
     border-radius:8px;
+}
+
+.summary{
+    background:#f5f5f5;
+    padding:10px;
 }
 
 button{margin:2px;padding:5px;}
@@ -64,20 +52,23 @@ button{margin:2px;padding:5px;}
 <body>
 
 <!-- ===================== -->
-<!-- 구역 선택 화면 -->
+<!-- 로그인 -->
 <!-- ===================== -->
-<div id="zoneList"></div>
+<div id="login">
+    <h2>👥 팀 로그인</h2>
+    <input id="userName" placeholder="이름 입력">
+    <button onclick="start()">시작</button>
+</div>
 
 <!-- ===================== -->
-<!-- 앱 화면 -->
+<!-- 앱 -->
 <!-- ===================== -->
 <div id="app">
 
-<button onclick="back()">⬅ 구역 목록</button>
+<button onclick="logout()">로그아웃</button>
 
 <div class="summary">
-전체: <span id="total"></span> /
-완료: <span id="done"></span> /
+내 구역: <span id="myZone"></span><br>
 진행률: <span id="rate"></span>%
 </div>
 
@@ -95,7 +86,7 @@ button{margin:2px;padding:5px;}
 // =====================
 // 전체 데이터 (150집)
 // =====================
-let houses = [];
+let houses=[];
 
 for(let i=1;i<=150;i++){
     houses.push({
@@ -108,14 +99,17 @@ for(let i=1;i<=150;i++){
     });
 }
 
-// 현재 구역
-let currentZone = 1;
-let currentHouses = [];
+// =====================
+// 사용자 정보
+// =====================
+let userName="";
+let myZone=1;
+let currentHouses=[];
 
 // =====================
 // 지도
 // =====================
-let map = L.map('map').setView([36.8,126.9],13);
+let map=L.map('map').setView([36.8,126.9],13);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
     attribution:''
@@ -124,74 +118,61 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
 let markers=[];
 
 // =====================
-// 구역 목록 생성
+// 로그인 + 자동 배정
 // =====================
-function renderZones(){
+function start(){
 
-    let zoneList = document.getElementById("zoneList");
-    zoneList.innerHTML = "<h2>📍 구역 선택</h2>";
+    userName=document.getElementById("userName").value;
 
-    for(let i=1;i<=15;i++){ // 15개 구역 (10집씩)
-
-        let btn = document.createElement("button");
-        btn.className="zoneBtn";
-        btn.innerText = i + "번 구역";
-
-        btn.onclick = () => openZone(i);
-
-        zoneList.appendChild(btn);
+    if(!userName){
+        alert("이름 입력");
+        return;
     }
-}
 
-// =====================
-// 구역 들어가기
-// =====================
-function openZone(zoneId){
+    // 이름 기반 자동 구역 배정
+    myZone = (userName.length % 15) + 1;
 
-    currentZone = zoneId;
-
-    document.getElementById("zoneList").style.display="none";
+    document.getElementById("login").style.display="none";
     document.getElementById("app").style.display="block";
 
-    loadZone(zoneId);
+    loadZone();
 }
 
 // =====================
-// 구역 데이터 로딩
+// 로그아웃
 // =====================
-function loadZone(zoneId){
+function logout(){
+    location.reload();
+}
 
-    let start = (zoneId-1)*10 + 1;
-    let end = zoneId*10;
+// =====================
+// 구역 로딩
+// =====================
+function loadZone(){
 
-    currentHouses = houses.filter(h => h.id>=start && h.id<=end);
+    let start=(myZone-1)*10+1;
+    let end=myZone*10;
+
+    currentHouses=houses.filter(h=>h.id>=start && h.id<=end);
+
+    document.getElementById("myZone").innerText=myZone+"번";
 
     render();
     drawMarkers();
 }
 
 // =====================
-// 뒤로가기
-// =====================
-function back(){
-
-    document.getElementById("zoneList").style.display="block";
-    document.getElementById("app").style.display="none";
-}
-
-// =====================
 // 상태 변경
 // =====================
 function setStatus(id,status){
-
-    let h = houses.find(x=>x.id===id);
+    let h=houses.find(x=>x.id===id);
     h.status=status;
 
-    loadZone(currentZone);
+    loadZone();
 }
 
 // =====================
-// 지도 마커
+// 지도
 // =====================
 function drawMarkers(){
 
@@ -206,7 +187,7 @@ function drawMarkers(){
         if(h.status==="reject") color="red";
         if(h.status==="closed") color="gray";
 
-        let m = L.circleMarker([h.lat,h.lng],{
+        let m=L.circleMarker([h.lat,h.lng],{
             radius:7,
             color:color
         }).addTo(map);
@@ -234,15 +215,14 @@ function drawMarkers(){
 // =====================
 function render(){
 
-    let list = document.getElementById("list");
+    let list=document.getElementById("list");
     list.innerHTML="";
 
     let total=currentHouses.length;
     let done=currentHouses.filter(h=>h.status==="visited").length;
+
     let rate=Math.round(done/total*100);
 
-    document.getElementById("total").innerText=total;
-    document.getElementById("done").innerText=done;
     document.getElementById("rate").innerText=rate;
 
     currentHouses.forEach(h=>{
@@ -258,8 +238,7 @@ function render(){
 
         div.innerHTML=`
             <b>${h.name}</b><br>
-            ${h.desc}<br>
-            상태: <span class="status">${statusText}</span><br>
+            상태: ${statusText}<br>
 
             <button onclick="setStatus(${h.id},'visited')">방문</button>
             <button onclick="setStatus(${h.id},'absent')">부재중</button>
@@ -270,11 +249,6 @@ function render(){
         list.appendChild(div);
     });
 }
-
-// =====================
-// 시작
-// =====================
-renderZones();
 
 </script>
 
