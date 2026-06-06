@@ -49,8 +49,26 @@ button{
 <script>
 // =====================
 // 데이터 (여기만 늘리면 150개 확장 가능)
-// =====================
-let houses = [
+//let houses = [];
+
+for(let i = 1; i <= 150; i++){
+  houses.push({
+    id: i,
+    name: "현대로 " + (1200 + i),
+    desc: "자동 생성 구역 " + i,
+    status: "none"
+  });
+} =====================
+let houses = [];
+
+for(let i = 1; i <= 150; i++){
+  houses.push({
+    id: i,
+    name: "현대로 " + (1200 + i),
+    desc: "자동 생성 구역 " + i,
+    status: "none"
+  });
+}
   {id:1, name:"현대로1232", desc:"유진에어테크", status:"none"},
   {id:2, name:"현대로1230", desc:"유진테크 사랑방", status:"none"}
 ];
