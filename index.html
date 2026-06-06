@@ -3,23 +3,45 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>호별 방문 기록 V2.2</title>
+<title>호별 방문 기록 V3</title>
 
 <style>
-body{font-family: Arial; margin:20px;}
-.summary{background:#f5f5f5; padding:15px; border-radius:10px; margin-bottom:20px;}
-.card{border:1px solid #ccc; padding:12px; border-radius:10px; margin-bottom:12px;}
-button{margin:3px; padding:6px 10px;}
-.status{font-weight:bold;}
+body{
+    font-family: Arial;
+    margin:20px;
+}
+
+.summary{
+    background:#f5f5f5;
+    padding:15px;
+    border-radius:10px;
+    margin-bottom:20px;
+}
+
+.card{
+    border:1px solid #ccc;
+    padding:12px;
+    border-radius:10px;
+    margin-bottom:12px;
+}
+
+button{
+    margin:3px;
+    padding:6px 10px;
+}
+
+.status{
+    font-weight:bold;
+}
 </style>
 </head>
 
 <body>
 
 <div class="summary">
-전체 : <span id="total">0</span>집<br>
-방문완료 : <span id="done">0</span>집<br>
-진행률 : <span id="rate">0</span>%
+전체 : <span id="total"></span>집<br>
+방문완료 : <span id="done"></span>집<br>
+진행률 : <span id="rate"></span>%
 </div>
 
 <div id="list"></div>
@@ -27,44 +49,46 @@ button{margin:3px; padding:6px 10px;}
 <script>
 
 // =====================
-// 150집 자동 생성
+// 초기화 (150집 생성)
 // =====================
-let houses = [];
+function init(){
+    let data = localStorage.getItem("visit_data");
 
-for(let i = 1; i <= 150; i++){
-  houses.push({
-    id: i,
-    name: "현대로 " + (1200 + i),
-    desc: "자동 생성 구역 " + i,
-    status: "none"
-  });
+    if(data){
+        return JSON.parse(data);
+    }
+
+    let houses = [];
+
+    for(let i = 1; i <= 150; i++){
+        houses.push({
+            id: i,
+            name: "현대로 " + (1200 + i),
+            desc: "자동 생성 구역 " + i,
+            status: "none"
+        });
+    }
+
+    return houses;
+}
+
+let houses = init();
+
+// =====================
+// 저장
+// =====================
+function saveData(){
+    localStorage.setItem("visit_data", JSON.stringify(houses));
 }
 
 // =====================
 // 상태 변경
 // =====================
 function setStatus(id, status){
-  let h = houses.find(x => x.id === id);
-  h.status = status;
-  saveData();
-  render();
-}
-
-// =====================
-// 저장
-// =====================
-function saveData(){
-  localStorage.setItem("visit_data", JSON.stringify(houses));
-}
-
-// =====================
-// 불러오기
-// =====================
-function loadData(){
-  let data = localStorage.getItem("visit_data");
-  if(data){
-    houses = JSON.parse(data);
-  }
+    let h = houses.find(x => x.id === id);
+    h.status = status;
+    saveData();
+    render();
 }
 
 // =====================
@@ -72,47 +96,44 @@ function loadData(){
 // =====================
 function render(){
 
-  let list = document.getElementById("list");
-  list.innerHTML = "";
+    let list = document.getElementById("list");
+    list.innerHTML = "";
 
-  let total = houses.length;
-  let done = houses.filter(h => h.status === "visited").length;
-  let rate = Math.round(done / total * 100);
+    let total = houses.length;
+    let done = houses.filter(h => h.status === "visited").length;
+    let rate = total === 0 ? 0 : Math.round(done / total * 100);
 
-  document.getElementById("total").innerText = total;
-  document.getElementById("done").innerText = done;
-  document.getElementById("rate").innerText = rate;
+    document.getElementById("total").innerText = total;
+    document.getElementById("done").innerText = done;
+    document.getElementById("rate").innerText = rate;
 
-  houses.forEach(h => {
+    houses.forEach(h => {
 
-    let statusText = "미방문";
-    if(h.status === "visited") statusText = "방문함";
-    if(h.status === "absent") statusText = "부재중";
-    if(h.status === "reject") statusText = "방문거절";
-    if(h.status === "closed") statusText = "폐문부재";
+        let statusText = "미방문";
+        if(h.status === "visited") statusText = "방문함";
+        if(h.status === "absent") statusText = "부재중";
+        if(h.status === "reject") statusText = "방문거절";
+        if(h.status === "closed") statusText = "폐문부재";
 
-    let div = document.createElement("div");
-    div.className = "card";
+        let div = document.createElement("div");
+        div.className = "card";
 
-    div.innerHTML = `
-      <div><b>${h.name}</b></div>
-      <div>${h.desc}</div>
-      <div>상태 : <span class="status">${statusText}</span></div>
+        div.innerHTML = `
+            <div><b>${h.name}</b></div>
+            <div>${h.desc}</div>
+            <div>상태 : <span class="status">${statusText}</span></div>
 
-      <button onclick="setStatus(${h.id},'visited')">방문함</button>
-      <button onclick="setStatus(${h.id},'absent')">부재중</button>
-      <button onclick="setStatus(${h.id},'reject')">방문거절</button>
-      <button onclick="setStatus(${h.id},'closed')">폐문부재</button>
-    `;
+            <button onclick="setStatus(${h.id},'visited')">방문함</button>
+            <button onclick="setStatus(${h.id},'absent')">부재중</button>
+            <button onclick="setStatus(${h.id},'reject')">방문거절</button>
+            <button onclick="setStatus(${h.id},'closed')">폐문부재</button>
+        `;
 
-    list.appendChild(div);
-  });
+        list.appendChild(div);
+    });
 }
 
-// =====================
 // 시작
-// =====================
-loadData();
 render();
 
 </script>
