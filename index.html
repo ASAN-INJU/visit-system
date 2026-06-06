@@ -3,26 +3,42 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>호별 방문 기록 V6 (팀+GPS+지도)</title>
+<title>방문 시스템 V7 관리자</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 
 <style>
 body{font-family:Arial;margin:0;}
 .container{display:flex;height:100vh;}
-#map{width:60%;height:100%;}
-#panel{width:40%;overflow:auto;padding:10px;}
-.card{border:1px solid #ccc;padding:10px;margin:10px 0;border-radius:8px;}
+
+#map{width:55%;height:100%;}
+#panel{width:45%;overflow:auto;padding:10px;}
+
+.summary{
+    background:#f5f5f5;
+    padding:10px;
+    margin-bottom:10px;
+    font-size:14px;
+}
+
+.card{
+    border:1px solid #ccc;
+    padding:10px;
+    margin:10px 0;
+    border-radius:8px;
+}
+
 button{margin:2px;padding:5px;}
-.summary{background:#f5f5f5;padding:10px;}
 .status{font-weight:bold;}
+
+.adminBox{
+    background:#fff7d6;
+    padding:10px;
+    margin-bottom:10px;
+    border-radius:8px;
+    border:1px solid #ddd;
+}
 </style>
-
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
-
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
 </head>
 
 <body>
@@ -30,27 +46,47 @@ button{margin:2px;padding:5px;}
 <div class="summary">
 전체: <span id="total"></span> /
 완료: <span id="done"></span> /
+미방문: <span id="none"></span> /
 진행률: <span id="rate"></span>%
 </div>
 
 <div class="container">
+
 <div id="map"></div>
-<div id="panel"><div id="list"></div></div>
+
+<div id="panel">
+
+<div class="adminBox">
+<b>📊 관리자 요약</b><br>
+오늘 방문: <span id="today"></span><br>
+미방문: <span id="none2"></span><br>
+완료율: <span id="rate2"></span>%
 </div>
+
+<div id="list"></div>
+
+</div>
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
 
 // =====================
-// Firebase 설정 (여기 수정)
+// 데이터 생성 (150집)
 // =====================
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID"
-};
+let houses = [];
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+for(let i=1;i<=150;i++){
+    houses.push({
+        id:i,
+        name:"현대로 "+(1200+i),
+        desc:"구역 "+i,
+        status:"none",
+        lat:36.8+i*0.0004,
+        lng:126.9+i*0.0004
+    });
+}
 
 // =====================
 // 지도
@@ -64,7 +100,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
 let markers=[];
 
 // =====================
-// GPS 현재 위치
+// GPS
 // =====================
 if(navigator.geolocation){
     navigator.geolocation.getCurrentPosition(pos=>{
@@ -81,56 +117,13 @@ if(navigator.geolocation){
 }
 
 // =====================
-// 초기 데이터 생성
-// =====================
-async function init(){
-
-    let snap = await db.collection("houses").get();
-
-    if(snap.empty){
-
-        for(let i=1;i<=150;i++){
-            await db.collection("houses").doc(i+"").set({
-                id:i,
-                name:"현대로 "+(1200+i),
-                desc:"구역 "+i,
-                status:"none",
-                lat:36.8+i*0.0005,
-                lng:126.9+i*0.0005
-            });
-        }
-    }
-
-    load();
-}
-
-// =====================
-// 데이터 불러오기
-// =====================
-async function load(){
-
-    let snap = await db.collection("houses").get();
-
-    houses=[];
-
-    snap.forEach(doc=>{
-        houses.push(doc.data());
-    });
-
-    render();
-    drawMarkers();
-}
-
-// =====================
 // 상태 변경
 // =====================
 function setStatus(id,status){
-
-    db.collection("houses").doc(id+"").update({
-        status:status
-    }).then(()=>{
-        load();
-    });
+    let h = houses.find(x=>x.id===id);
+    h.status=status;
+    render();
+    drawMarkers();
 }
 
 // =====================
@@ -169,7 +162,7 @@ function drawMarkers(){
 }
 
 // =====================
-// 렌더
+// 렌더 (관리자 핵심)
 // =====================
 function render(){
 
@@ -178,11 +171,20 @@ function render(){
 
     let total=houses.length;
     let done=houses.filter(h=>h.status==="visited").length;
+    let none=houses.filter(h=>h.status==="none").length;
+
     let rate=Math.round(done/total*100);
 
+    // 상단
     document.getElementById("total").innerText=total;
     document.getElementById("done").innerText=done;
+    document.getElementById("none").innerText=none;
     document.getElementById("rate").innerText=rate;
+
+    // 관리자 박스
+    document.getElementById("today").innerText=done;
+    document.getElementById("none2").innerText=none;
+    document.getElementById("rate2").innerText=rate;
 
     houses.forEach(h=>{
 
@@ -213,7 +215,8 @@ function render(){
 // =====================
 // 시작
 // =====================
-init();
+render();
+drawMarkers();
 
 </script>
 
