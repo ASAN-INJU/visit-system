@@ -50,6 +50,8 @@ button{
 
 <div id="list"></div>
 
+<script>
+
 let houses = [
     {
         address:"현대로1232",
@@ -62,11 +64,13 @@ let houses = [
         status:"미방문"
     }
 ];
+
 const savedData = localStorage.getItem("houses");
 
 if(savedData){
     houses = JSON.parse(savedData);
 }
+
 function updateSummary(){
 
     const total = houses.length;
@@ -105,28 +109,16 @@ function render(){
         <div class="card">
 
             <h3>${house.address}</h3>
-
             <p>${house.name}</p>
 
             <div class="status">
             상태 : ${house.status}
             </div>
 
-            <button onclick="setStatus(${index},'방문함')">
-            방문함
-            </button>
-
-            <button onclick="setStatus(${index},'부재중')">
-            부재중
-            </button>
-
-            <button onclick="setStatus(${index},'방문거절')">
-            방문거절
-            </button>
-
-            <button onclick="setStatus(${index},'폐문부재')">
-            폐문부재
-            </button>
+            <button onclick="setStatus(${index},'방문함')">방문함</button>
+            <button onclick="setStatus(${index},'부재중')">부재중</button>
+            <button onclick="setStatus(${index},'방문거절')">방문거절</button>
+            <button onclick="setStatus(${index},'폐문부재')">폐문부재</button>
 
         </div>
         `;
