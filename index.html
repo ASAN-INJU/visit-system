@@ -3,65 +3,35 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>호별 방문 기록 V3 (지도)</title>
+<title>호별 방문 기록 V5 (GPS)</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 
 <style>
-body{
-    font-family: Arial;
-    margin:0;
-}
-
-.summary{
-    background:#f5f5f5;
-    padding:10px;
-    font-size:14px;
-}
-
-.container{
-    display:flex;
-    height:100vh;
-}
-
-#map{
-    width:50%;
-    height:100%;
-}
-
-#list{
-    width:50%;
-    overflow:auto;
-    padding:10px;
-}
-
-.card{
-    border:1px solid #ccc;
-    padding:10px;
-    margin-bottom:10px;
-    border-radius:8px;
-}
-
-button{
-    margin:2px;
-    padding:5px;
-}
-
-.status{
-    font-weight:bold;
-}
+body{font-family:Arial;margin:0;}
+.container{display:flex;height:100vh;}
+#map{width:60%;height:100%;}
+#panel{width:40%;overflow:auto;padding:10px;}
+.card{border:1px solid #ccc;padding:10px;margin:10px 0;border-radius:8px;}
+button{margin:2px;padding:5px;}
+.summary{background:#f5f5f5;padding:10px;}
+.status{font-weight:bold;}
 </style>
 </head>
 
 <body>
 
 <div class="summary">
-전체 : <span id="total"></span> / 방문완료 : <span id="done"></span> / 진행률 : <span id="rate"></span>%
+전체: <span id="total"></span> /
+완료: <span id="done"></span> /
+진행률: <span id="rate"></span>%
 </div>
 
 <div class="container">
-    <div id="map"></div>
-    <div id="list"></div>
+<div id="map"></div>
+<div id="panel">
+<div id="list"></div>
+</div>
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -69,40 +39,56 @@ button{
 <script>
 
 // =====================
-// 150집 생성 + 좌표 (가상 배치)
+// 150집 생성 (가상 좌표)
 // =====================
 let houses = [];
 
 for(let i=1;i<=150;i++){
     houses.push({
         id:i,
-        name:"현대로 " + (1200+i),
-        desc:"자동 구역 " + i,
+        name:"현대로 "+(1200+i),
+        desc:"구역 "+i,
         status:"none",
-        lat: 36.8 + (i * 0.0005),
-        lng: 126.9 + (i * 0.0005)
+        lat:36.8 + i*0.0005,
+        lng:126.9 + i*0.0005
     });
 }
 
 // =====================
-// 지도 초기화
+// 지도
 // =====================
-let map = L.map('map').setView([36.8,126.9], 13);
+let map = L.map('map').setView([36.8,126.9],13);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
     attribution:''
 }).addTo(map);
 
-// 마커 저장
-let markers = [];
+let markers=[];
+
+// =====================
+// GPS 현재 위치
+// =====================
+if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(pos=>{
+        let lat = pos.coords.latitude;
+        let lng = pos.coords.longitude;
+
+        L.circleMarker([lat,lng],{
+            radius:8,
+            color:"blue"
+        }).addTo(map).bindPopup("📍 내 위치");
+
+        map.setView([lat,lng],14);
+    });
+}
 
 // =====================
 // 상태 변경
 // =====================
 function setStatus(id,status){
     let h = houses.find(x=>x.id===id);
-    h.status = status;
-    saveData();
+    h.status=status;
+    save();
     render();
     drawMarkers();
 }
@@ -110,31 +96,31 @@ function setStatus(id,status){
 // =====================
 // 저장
 // =====================
-function saveData(){
-    localStorage.setItem("visit_data",JSON.stringify(houses));
+function save(){
+    localStorage.setItem("visit_v5",JSON.stringify(houses));
 }
 
 // =====================
 // 불러오기
 // =====================
-function loadData(){
-    let data = localStorage.getItem("visit_data");
-    if(data){
-        houses = JSON.parse(data);
+function load(){
+    let d = localStorage.getItem("visit_v5");
+    if(d){
+        houses=JSON.parse(d);
     }
 }
 
 // =====================
-// 마커 그리기
+// 마커
 // =====================
 function drawMarkers(){
 
     markers.forEach(m=>map.removeLayer(m));
-    markers = [];
+    markers=[];
 
     houses.forEach(h=>{
 
-        let color = "blue";
+        let color="blue";
         if(h.status==="visited") color="green";
         if(h.status==="absent") color="orange";
         if(h.status==="reject") color="red";
@@ -164,12 +150,12 @@ function drawMarkers(){
 // =====================
 function render(){
 
-    let list = document.getElementById("list");
+    let list=document.getElementById("list");
     list.innerHTML="";
 
-    let total = houses.length;
-    let done = houses.filter(h=>h.status==="visited").length;
-    let rate = Math.round(done/total*100);
+    let total=houses.length;
+    let done=houses.filter(h=>h.status==="visited").length;
+    let rate=Math.round(done/total*100);
 
     document.getElementById("total").innerText=total;
     document.getElementById("done").innerText=done;
@@ -180,21 +166,21 @@ function render(){
         let statusText="미방문";
         if(h.status==="visited") statusText="방문함";
         if(h.status==="absent") statusText="부재중";
-        if(h.status==="reject") statusText="방문거절";
-        if(h.status==="closed") statusText="폐문부재";
+        if(h.status==="reject") statusText="거절";
+        if(h.status==="closed") statusText="폐문";
 
         let div=document.createElement("div");
         div.className="card";
 
         div.innerHTML=`
-            <div><b>${h.name}</b></div>
-            <div>${h.desc}</div>
-            <div>상태 : <span class="status">${statusText}</span></div>
+            <b>${h.name}</b><br>
+            ${h.desc}<br>
+            상태: <span class="status">${statusText}</span><br>
 
-            <button onclick="setStatus(${h.id},'visited')">방문함</button>
+            <button onclick="setStatus(${h.id},'visited')">방문</button>
             <button onclick="setStatus(${h.id},'absent')">부재중</button>
-            <button onclick="setStatus(${h.id},'reject')">방문거절</button>
-            <button onclick="setStatus(${h.id},'closed')">폐문부재</button>
+            <button onclick="setStatus(${h.id},'reject')">거절</button>
+            <button onclick="setStatus(${h.id},'closed')">폐문</button>
         `;
 
         list.appendChild(div);
@@ -204,7 +190,7 @@ function render(){
 // =====================
 // 시작
 // =====================
-loadData();
+load();
 render();
 drawMarkers();
 
