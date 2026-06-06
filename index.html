@@ -3,8 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
-<title>호별 방문 기록</title>
+<title>호별 방문 기록 V2.2</title>
 
 <style>
 body{
@@ -17,118 +16,119 @@ body{
     padding:15px;
     border-radius:10px;
     margin-bottom:20px;
+    font-size:16px;
 }
 
 .card{
     border:1px solid #ccc;
+    padding:12px;
     border-radius:10px;
-    padding:10px;
-    margin-bottom:10px;
+    margin-bottom:12px;
 }
 
 button{
-    padding:8px;
     margin:3px;
+    padding:6px 10px;
 }
-
 .status{
     font-weight:bold;
-    margin-top:10px;
 }
 </style>
 </head>
 
 <body>
 
-<h2>호별 방문 기록</h2>
-
 <div class="summary">
-    <div>전체 : <span id="total">0</span>집</div>
-    <div>방문완료 : <span id="done">0</span>집</div>
-    <div>진행률 : <span id="percent">0</span>%</div>
+전체 : <span id="total">0</span>집<br>
+방문완료 : <span id="done">0</span>집<br>
+진행률 : <span id="rate">0</span>%
 </div>
 
 <div id="list"></div>
 
 <script>
-
+// =====================
+// 데이터 (여기만 늘리면 150개 확장 가능)
+// =====================
 let houses = [
-    {
-        address:"현대로1232",
-        name:"유진에어테크",
-        status:"미방문"
-    },
-    {
-        address:"현대로1230",
-        name:"유진테크 사랑방",
-        status:"미방문"
-    }
+  {id:1, name:"현대로1232", desc:"유진에어테크", status:"none"},
+  {id:2, name:"현대로1230", desc:"유진테크 사랑방", status:"none"}
 ];
 
-const savedData = localStorage.getItem("houses");
-
-if(savedData){
-    houses = JSON.parse(savedData);
+// =====================
+// 상태 변경
+// =====================
+function setStatus(id, status){
+  let h = houses.find(x => x.id === id);
+  h.status = status;
+  saveData();
+  render();
 }
 
-function updateSummary(){
-
-    const total = houses.length;
-
-    const done = houses.filter(
-        h => h.status !== "미방문"
-    ).length;
-
-    const percent =
-        Math.round(done / total * 100);
-
-    document.getElementById("total").innerText = total;
-    document.getElementById("done").innerText = done;
-    document.getElementById("percent").innerText = percent;
+// =====================
+// 저장 (브라우저 유지)
+// =====================
+function saveData(){
+  localStorage.setItem("visit_data", JSON.stringify(houses));
 }
 
-function setStatus(index,status){
-
-    houses[index].status = status;
-
-    localStorage.setItem(
-        "houses",
-        JSON.stringify(houses)
-    );
-
-    render();
+// =====================
+// 불러오기
+// =====================
+function loadData(){
+  let data = localStorage.getItem("visit_data");
+  if(data){
+    houses = JSON.parse(data);
+  }
 }
 
+// =====================
+// 화면 렌더링
+// =====================
 function render(){
 
-    let html = "";
+  let list = document.getElementById("list");
+  list.innerHTML = "";
 
-    houses.forEach((house,index)=>{
+  let total = houses.length;
+  let done = houses.filter(h => h.status === "visited").length;
 
-        html += `
-        <div class="card">
+  let rate = total === 0 ? 0 : Math.round(done / total * 100);
 
-            <h3>${house.address}</h3>
-            <p>${house.name}</p>
+  document.getElementById("total").innerText = total;
+  document.getElementById("done").innerText = done;
+  document.getElementById("rate").innerText = rate;
 
-            <div class="status">
-            상태 : ${house.status}
-            </div>
+  houses.forEach(h => {
 
-            <button onclick="setStatus(${index},'방문함')">방문함</button>
-            <button onclick="setStatus(${index},'부재중')">부재중</button>
-            <button onclick="setStatus(${index},'방문거절')">방문거절</button>
-            <button onclick="setStatus(${index},'폐문부재')">폐문부재</button>
+    let statusText = "미방문";
+    if(h.status === "visited") statusText = "방문함";
+    if(h.status === "absent") statusText = "부재중";
+    if(h.status === "reject") statusText = "방문거절";
+    if(h.status === "closed") statusText = "폐문부재";
 
-        </div>
-        `;
-    });
+    let div = document.createElement("div");
+    div.className = "card";
 
-    document.getElementById("list").innerHTML = html;
+    div.innerHTML = `
+      <div><b>${h.name}</b></div>
+      <div>${h.desc}</div>
+      <div>상태 : <span class="status">${statusText}</span></div>
 
-    updateSummary();
+      <button onclick="setStatus(${h.id},'visited')">방문함</button>
+      <button onclick="setStatus(${h.id},'absent')">부재중</button>
+      <button onclick="setStatus(${h.id},'reject')">방문거절</button>
+      <button onclick="setStatus(${h.id},'closed')">폐문부재</button>
+    `;
+
+    list.appendChild(div);
+  });
 }
 
+// =====================
+// 초기 실행
+// =====================
+loadData();
 render();
 
 </script>
