@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>방문 시스템 V7 관리자</title>
+<title>방문 시스템 V8 (최종)</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 
@@ -17,7 +17,6 @@ body{font-family:Arial;margin:0;}
 .summary{
     background:#f5f5f5;
     padding:10px;
-    margin-bottom:10px;
     font-size:14px;
 }
 
@@ -31,12 +30,20 @@ body{font-family:Arial;margin:0;}
 button{margin:2px;padding:5px;}
 .status{font-weight:bold;}
 
-.adminBox{
+.admin{
     background:#fff7d6;
     padding:10px;
     margin-bottom:10px;
     border-radius:8px;
-    border:1px solid #ddd;
+}
+
+.exportBtn{
+    background:#4CAF50;
+    color:white;
+    border:none;
+    padding:8px;
+    margin-top:5px;
+    cursor:pointer;
 }
 </style>
 </head>
@@ -56,16 +63,17 @@ button{margin:2px;padding:5px;}
 
 <div id="panel">
 
-<div class="adminBox">
-<b>📊 관리자 요약</b><br>
-오늘 방문: <span id="today"></span><br>
+<div class="admin">
+<b>📊 관리자</b><br>
+완료: <span id="done2"></span><br>
 미방문: <span id="none2"></span><br>
-완료율: <span id="rate2"></span>%
+<button class="exportBtn" onclick="exportCSV()">📤 엑셀 다운로드</button>
 </div>
 
 <div id="list"></div>
 
 </div>
+
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -73,9 +81,9 @@ button{margin:2px;padding:5px;}
 <script>
 
 // =====================
-// 데이터 생성 (150집)
+// 150집 생성
 // =====================
-let houses = [];
+let houses=[];
 
 for(let i=1;i<=150;i++){
     houses.push({
@@ -84,14 +92,15 @@ for(let i=1;i<=150;i++){
         desc:"구역 "+i,
         status:"none",
         lat:36.8+i*0.0004,
-        lng:126.9+i*0.0004
+        lng:126.9+i*0.0004,
+        worker:"미지정"
     });
 }
 
 // =====================
 // 지도
 // =====================
-let map = L.map('map').setView([36.8,126.9],13);
+let map=L.map('map').setView([36.8,126.9],13);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
     attribution:''
@@ -120,10 +129,19 @@ if(navigator.geolocation){
 // 상태 변경
 // =====================
 function setStatus(id,status){
-    let h = houses.find(x=>x.id===id);
+    let h=houses.find(x=>x.id===id);
     h.status=status;
     render();
     drawMarkers();
+}
+
+// =====================
+// 작업자 지정 (팀 기능)
+// =====================
+function setWorker(id,name){
+    let h=houses.find(x=>x.id===id);
+    h.worker=name;
+    render();
 }
 
 // =====================
@@ -149,8 +167,8 @@ function drawMarkers(){
 
         m.bindPopup(`
             <b>${h.name}</b><br>
-            ${h.desc}<br>
-            상태: ${h.status}
+            상태: ${h.status}<br>
+            담당: ${h.worker}
         `);
 
         m.on('click',()=>{
@@ -162,7 +180,27 @@ function drawMarkers(){
 }
 
 // =====================
-// 렌더 (관리자 핵심)
+// CSV 다운로드 (엑셀)
+// =====================
+function exportCSV(){
+
+    let csv="ID,이름,상태,담당자\n";
+
+    houses.forEach(h=>{
+        csv+=`${h.id},${h.name},${h.status},${h.worker}\n`;
+    });
+
+    let blob=new Blob([csv],{type:"text/csv"});
+    let url=URL.createObjectURL(blob);
+
+    let a=document.createElement("a");
+    a.href=url;
+    a.download="visit_report.csv";
+    a.click();
+}
+
+// =====================
+// 렌더
 // =====================
 function render(){
 
@@ -172,19 +210,15 @@ function render(){
     let total=houses.length;
     let done=houses.filter(h=>h.status==="visited").length;
     let none=houses.filter(h=>h.status==="none").length;
-
     let rate=Math.round(done/total*100);
 
-    // 상단
     document.getElementById("total").innerText=total;
     document.getElementById("done").innerText=done;
     document.getElementById("none").innerText=none;
     document.getElementById("rate").innerText=rate;
 
-    // 관리자 박스
-    document.getElementById("today").innerText=done;
+    document.getElementById("done2").innerText=done;
     document.getElementById("none2").innerText=none;
-    document.getElementById("rate2").innerText=rate;
 
     houses.forEach(h=>{
 
@@ -199,13 +233,14 @@ function render(){
 
         div.innerHTML=`
             <b>${h.name}</b><br>
-            ${h.desc}<br>
             상태: <span class="status">${statusText}</span><br>
+            담당: ${h.worker}<br>
 
             <button onclick="setStatus(${h.id},'visited')">방문</button>
             <button onclick="setStatus(${h.id},'absent')">부재중</button>
             <button onclick="setStatus(${h.id},'reject')">거절</button>
             <button onclick="setStatus(${h.id},'closed')">폐문</button>
+            <button onclick="setWorker(${h.id},prompt('이름 입력'))">담당자</button>
         `;
 
         list.appendChild(div);
