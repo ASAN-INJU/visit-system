@@ -3,44 +3,33 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>구역 방문 시스템 V2 (자동 배정)</title>
+<title>방문관리 FINAL 시스템</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4CAF50">
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 
 <style>
 body{font-family:Arial;margin:0;}
 
-#login{
-    padding:20px;
-}
-
+#login{padding:20px;}
 #app{display:none;}
 
-.zoneBtn{
-    display:block;
-    width:100%;
-    padding:10px;
-    margin:5px 0;
-}
-
-.container{
-    display:flex;
-    height:100vh;
-}
-
+.container{display:flex;height:100vh;}
 #map{width:60%;}
 #panel{width:40%;overflow:auto;padding:10px;}
+
+.summary{
+    background:#f5f5f5;
+    padding:10px;
+}
 
 .card{
     border:1px solid #ccc;
     padding:10px;
     margin:10px 0;
     border-radius:8px;
-}
-
-.summary{
-    background:#f5f5f5;
-    padding:10px;
 }
 
 button{margin:2px;padding:5px;}
@@ -51,18 +40,14 @@ button{margin:2px;padding:5px;}
 
 <body>
 
-<!-- ===================== -->
 <!-- 로그인 -->
-<!-- ===================== -->
 <div id="login">
-    <h2>👥 팀 로그인</h2>
+    <h2>📍 방문 시스템 로그인</h2>
     <input id="userName" placeholder="이름 입력">
-    <button onclick="start()">시작</button>
+    <button onclick="login()">시작</button>
 </div>
 
-<!-- ===================== -->
 <!-- 앱 -->
-<!-- ===================== -->
 <div id="app">
 
 <button onclick="logout()">로그아웃</button>
@@ -81,12 +66,31 @@ button{margin:2px;padding:5px;}
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
 <script>
 
 // =====================
-// 전체 데이터 (150집)
+// Firebase (본인 값 필수)
 // =====================
-let houses=[];
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "XXXX",
+  appId: "XXXX"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// =====================
+// 데이터 (150개 고정)
+// =====================
+let houses = [];
 
 for(let i=1;i<=150;i++){
     houses.push({
@@ -100,7 +104,7 @@ for(let i=1;i<=150;i++){
 }
 
 // =====================
-// 사용자 정보
+// 상태
 // =====================
 let userName="";
 let myZone=1;
@@ -120,7 +124,7 @@ let markers=[];
 // =====================
 // 로그인 + 자동 배정
 // =====================
-function start(){
+function login(){
 
     userName=document.getElementById("userName").value;
 
@@ -129,11 +133,12 @@ function start(){
         return;
     }
 
-    // 이름 기반 자동 구역 배정
-    myZone = (userName.length % 15) + 1;
+    myZone=(userName.length % 15)+1;
 
     document.getElementById("login").style.display="none";
     document.getElementById("app").style.display="block";
+
+    document.getElementById("myZone").innerText=myZone+"번";
 
     loadZone();
 }
@@ -155,24 +160,44 @@ function loadZone(){
 
     currentHouses=houses.filter(h=>h.id>=start && h.id<=end);
 
-    document.getElementById("myZone").innerText=myZone+"번";
-
     render();
     drawMarkers();
 }
 
 // =====================
-// 상태 변경
+// 상태 저장 (Firebase)
 // =====================
 function setStatus(id,status){
-    let h=houses.find(x=>x.id===id);
-    h.status=status;
 
-    loadZone();
+    db.collection("houses").doc(String(id)).set({
+        id:id,
+        status:status,
+        time:Date.now()
+    });
+
 }
 
 // =====================
-// 지도
+// 실시간 동기화
+// =====================
+db.collection("houses").onSnapshot(snapshot=>{
+
+    snapshot.docChanges().forEach(change=>{
+
+        let data=change.doc.data();
+
+        let h=houses.find(x=>x.id==data.id);
+
+        if(h){
+            h.status=data.status;
+        }
+    });
+
+    loadZone();
+});
+
+// =====================
+// 지도 마커
 // =====================
 function drawMarkers(){
 
@@ -192,11 +217,7 @@ function drawMarkers(){
             color:color
         }).addTo(map);
 
-        m.bindPopup(`
-            <b>${h.name}</b><br>
-            ${h.desc}<br>
-            상태: ${h.status}
-        `);
+        m.bindPopup(`<b>${h.name}</b><br>${h.status}`);
 
         m.on('click',()=>{
             setStatus(h.id,"visited");
@@ -205,13 +226,13 @@ function drawMarkers(){
         markers.push(m);
     });
 
-    if(currentHouses.length>0){
+    if(currentHouses.length){
         map.setView([currentHouses[0].lat,currentHouses[0].lng],15);
     }
 }
 
 // =====================
-// 렌더
+// 화면 렌더
 // =====================
 function render(){
 
@@ -221,7 +242,7 @@ function render(){
     let total=currentHouses.length;
     let done=currentHouses.filter(h=>h.status==="visited").length;
 
-    let rate=Math.round(done/total*100);
+    let rate= total ? Math.round(done/total*100) : 0;
 
     document.getElementById("rate").innerText=rate;
 
@@ -238,7 +259,8 @@ function render(){
 
         div.innerHTML=`
             <b>${h.name}</b><br>
-            상태: ${statusText}<br>
+            ${h.desc}<br>
+            상태: <span class="status">${statusText}</span><br>
 
             <button onclick="setStatus(${h.id},'visited')">방문</button>
             <button onclick="setStatus(${h.id},'absent')">부재중</button>
@@ -250,6 +272,13 @@ function render(){
     });
 }
 
+</script>
+
+<!-- PWA 등록 -->
+<script>
+if("serviceWorker" in navigator){
+    navigator.serviceWorker.register("sw.js");
+}
 </script>
 
 </body>
