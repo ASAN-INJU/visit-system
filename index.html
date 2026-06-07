@@ -4,181 +4,157 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>아산-인주 방문관리 V4 TEST</title>
+<title>아산-인주 방문관리 PWA</title>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
-
-<!-- Kakao Map -->
-<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_APP_KEY"></script>
+<!-- Leaflet 지도 -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <style>
-body { margin:0; font-family:Arial; }
-
-header {
-    background:#2d89ef;
-    color:white;
-    padding:10px;
-    text-align:center;
+body {
+  margin:0;
+  font-family: Arial;
 }
 
-#map { width:100%; height:45vh; }
+#topbar {
+  background:#2c3e50;
+  color:white;
+  padding:10px;
+  font-size:18px;
+}
+
+#map {
+  height: 90vh;
+  width: 100%;
+}
 
 #info {
-    padding:10px;
-    background:#f3f3f3;
-    font-weight:bold;
+  padding:10px;
+  background:#f5f5f5;
 }
-
-.card {
-    background:white;
-    margin:5px;
-    padding:10px;
-    border-radius:8px;
-    box-shadow:0 1px 2px rgba(0,0,0,0.2);
-    cursor:pointer;
-}
-
-.done { background:#bff5c1 !important; }
-
-.small { font-size:12px; color:gray; }
 </style>
 </head>
 
 <body>
 
-<header>📍 방문관리 V4 (TEST)</header>
+<div id="topbar">
+📍 아산-인주 방문관리 시스템
+</div>
 
-<div id="info">로딩중...</div>
+<div id="info">
+총 집: <span id="total">0</span> /
+방문: <span id="visited">0</span> /
+부재: <span id="absent">0</span>
+</div>
+
 <div id="map"></div>
-<div id="list"></div>
 
 <script>
+/* ================================
+   1. 기본 데이터 (150개 구조)
+================================ */
+let houses = JSON.parse(localStorage.getItem("houses")) || [];
 
-// ================= FIREBASE =================
-const firebaseConfig = {
-    apiKey: "YOUR_KEY",
-    authDomain: "YOUR_DOMAIN",
-    projectId: "YOUR_ID"
-};
+/* 처음 실행 시 더미 데이터 생성 */
+if (houses.length === 0) {
+  for (let i = 1; i <= 150; i++) {
+    houses.push({
+      id: i,
+      name: "집 " + i,
+      lat: 36.78 + (Math.random() * 0.02),
+      lng: 126.45 + (Math.random() * 0.02),
+      status: "none"
+    });
+  }
+}
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+/* ================================
+   2. 지도 생성
+================================ */
+const map = L.map('map').setView([36.78, 126.45], 15);
 
-// ================= USER =================
-let userName = prompt("이름 입력") || "user";
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19
+}).addTo(map);
 
-// ================= MAP =================
-let map = new kakao.maps.Map(document.getElementById('map'), {
-    center: new kakao.maps.LatLng(36.8690, 126.9290),
-    level: 6
-});
-
-let data = [];
 let markers = [];
 
-// ================= LOAD =================
-async function loadData() {
+/* ================================
+   3. 지도 그리기 함수
+================================ */
+function renderMap() {
 
-    let snap = await db.collection("visit").get();
-    data = snap.docs.map(d => d.data());
+  // 기존 마커 삭제
+  markers.forEach(m => map.removeLayer(m));
+  markers = [];
 
-    if (data.length === 0) {
-        for (let i = 1; i <= 150; i++) {
-            let item = {
-                id: i,
-                name: "구역 " + i,
-                lat: 36.86 + Math.random() * 0.02,
-                lng: 126.92 + Math.random() * 0.02,
-                done: false,
-                date: "",
-                user: ""
-            };
+  let visited = 0;
+  let absent = 0;
 
-            data.push(item);
-            db.collection("visit").doc(String(i)).set(item);
-        }
+  houses.forEach(h => {
+
+    let color = "gray";
+
+    if (h.status === "visited") {
+      color = "green";
+      visited++;
+    }
+    if (h.status === "absent") {
+      color = "red";
+      absent++;
     }
 
-    render();
-}
+    const marker = L.circleMarker([h.lat, h.lng], {
+      radius: 8,
+      color: color,
+      fillColor: color,
+      fillOpacity: 0.9
+    }).addTo(map);
 
-// ================= SAVE =================
-function save(item) {
-    db.collection("visit").doc(String(item.id)).set(item);
-}
+    marker.bindPopup(`
+      <b>${h.name}</b><br>
+      상태: ${h.status}
+    `);
 
-// ================= TOGGLE =================
-function toggle(item) {
-
-    item.done = !item.done;
-
-    if (item.done) {
-        item.date = new Date().toLocaleString();
-        item.user = userName;
-    } else {
-        item.date = "";
-        item.user = "";
-    }
-
-    save(item);
-    render();
-}
-
-// ================= INFO =================
-function updateInfo() {
-    let done = data.filter(d => d.done).length;
-    document.getElementById("info").innerText =
-        `진행률: ${done}/150 | 사용자: ${userName}`;
-}
-
-// ================= RENDER =================
-function render() {
-
-    updateInfo();
-
-    let list = document.getElementById("list");
-    list.innerHTML = "";
-
-    markers.forEach(m => m.setMap(null));
-    markers = [];
-
-    data.forEach(item => {
-
-        let icon = item.done
-        ? "https://maps.google.com/mapfiles/ms/icons/green-dot.png"
-        : "https://maps.google.com/mapfiles/ms/icons/red-dot.png";
-
-        let marker = new kakao.maps.Marker({
-            position: new kakao.maps.LatLng(item.lat, item.lng),
-            map: map,
-            image: new kakao.maps.MarkerImage(icon, new kakao.maps.Size(30,30))
-        });
-
-        kakao.maps.event.addListener(marker, () => toggle(item));
-
-        markers.push(marker);
-
-        let div = document.createElement("div");
-        div.className = "card" + (item.done ? " done" : "");
-
-        div.innerHTML = `
-            <b>${item.name}</b><br>
-            <span class="small">
-                ${item.done ? "완료" : "미완료"}<br>
-                ${item.user || ""} ${item.date || ""}
-            </span>
-        `;
-
-        div.onclick = () => toggle(item);
-
-        list.appendChild(div);
+    marker.on("click", () => {
+      toggleStatus(h.id);
     });
+
+    markers.push(marker);
+  });
+
+  document.getElementById("total").innerText = houses.length;
+  document.getElementById("visited").innerText = visited;
+  document.getElementById("absent").innerText = absent;
+
+  saveData();
 }
 
-// ================= START =================
-loadData();
+/* ================================
+   4. 상태 변경
+================================ */
+function toggleStatus(id) {
+
+  const h = houses.find(x => x.id === id);
+
+  if (h.status === "none") h.status = "visited";
+  else if (h.status === "visited") h.status = "absent";
+  else h.status = "none";
+
+  renderMap();
+}
+
+/* ================================
+   5. 저장
+================================ */
+function saveData() {
+  localStorage.setItem("houses", JSON.stringify(houses));
+}
+
+/* ================================
+   6. 시작
+================================ */
+renderMap();
 
 </script>
 
