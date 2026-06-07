@@ -1,222 +1,72 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>아산 현장 방문관리 시스템</title>
+<title>방문관리</title>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
 <style>
-body { margin:0; font-family: Arial; }
-
-#topbar {
-  background:#2c3e50;
-  color:white;
-  padding:10px;
-  font-size:18px;
+body{margin:0;font-family:Arial}
+#top{
+background:#2c3e50;
+color:white;
+padding:10px;
+text-align:center;
 }
-
-#menu {
-  padding:10px;
-  background:#eee;
-}
-
-#map {
-  height: 80vh;
-  width: 100%;
-}
-
-button {
-  padding:8px 12px;
-  margin-right:5px;
+#map{
+height:92vh;
 }
 </style>
 </head>
-
 <body>
 
-<div id="topbar">
-📍 아산 현장 방문관리 시스템 (엑셀 → 지도)
-</div>
-
-<div id="menu">
-<input type="file" id="fileInput">
-<button onclick="loadExcel()">엑셀 업로드</button>
-</div>
+<div id="top">아산 방문관리</div>
 
 <div id="map"></div>
 
 <script>
 
-/* ======================
-   1. 지도 중심 (아산)
-====================== */
-const map = L.map('map').setView([36.8900, 126.4500], 14);
+const map = L.map('map').setView([36.8900,126.4500],13);
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  maxZoom: 19
-}).addTo(map);
+L.tileLayer(
+'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+).addTo(map);
 
-/* ======================
-   2. 데이터
-====================== */
-let houses = [];
+let houses = [
+{id:1,name:"1번집",lat:36.8900,lng:126.4500,status:"미방문"},
+{id:2,name:"2번집",lat:36.8920,lng:126.4520,status:"미방문"},
+{id:3,name:"3번집",lat:36.8940,lng:126.4480,status:"미방문"}
+];
 
-/* ======================
-   3. Geocoding 함수
-====================== */
-async function geocode(address) {
+houses.forEach(h=>{
 
-  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
+const marker=L.marker([h.lat,h.lng]).addTo(map);
 
-  const res = await fetch(url);
-  const data = await res.json();
+marker.bindPopup(
+`${h.name}<br>상태:${h.status}`
+);
 
-  if (data && data.length > 0) {
-    return {
-      lat: parseFloat(data[0].lat),
-      lng: parseFloat(data[0].lon)
-    };
-  }
+marker.on("click",()=>{
 
-  return null;
+if(h.status==="미방문"){
+h.status="방문";
+}else if(h.status==="방문"){
+h.status="부재";
+}else{
+h.status="미방문";
 }
 
-/* ======================
-   4. 엑셀 로드
-====================== */
-function loadExcel() {
+marker.setPopupContent(
+`${h.name}<br>상태:${h.status}`
+);
 
-  const file = document.getElementById("fileInput").files[0];
+});
 
-  const reader = new FileReader();
-
-  reader.onload = async function(e) {
-
-    const data = new Uint8Array(e.target.result);
-    const workbook = XLSX.read(data, { type: "array" });
-
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json(sheet);
-
-    await convert(rows);
-  };
-
-  reader.readAsArrayBuffer(file);
-}
-
-/* ======================
-   5. 주소 → 좌표 변환
-====================== */
-async function convert(rows) {
-
-  houses = [];
-
-  for (let i = 0; i < rows.length; i++) {
-
-    const row = rows[i];
-
-    const geo = await geocode(row.address);
-
-    if (geo) {
-
-      const house = {
-        id: Number(row.id),
-        name: row.name,
-        address: row.address,
-        lat: geo.lat,
-        lng: geo.lng,
-        status: "none",
-        marker: null
-      };
-
-      houses.push(house);
-    }
-
-    await new Promise(r => setTimeout(r, 1000)); // API 제한
-  }
-
-  renderMarkers();
-}
-
-/* ======================
-   6. 마커 생성
-====================== */
-function renderMarkers() {
-
-  houses.forEach(h => {
-
-    const marker = L.circleMarker([h.lat, h.lng], {
-      radius: 8,
-      color: "gray",
-      fillColor: "gray",
-      fillOpacity: 0.9
-    }).addTo(map);
-
-    h.marker = marker;
-
-    marker.bindPopup(`
-      <b>${h.name}</b><br>
-      ${h.address}<br>
-      상태: ${h.status}
-    `);
-
-    marker.on("click", () => toggleStatus(h.id));
-  });
-
-  saveData();
-}
-
-/* ======================
-   7. 상태 변경
-====================== */
-function toggleStatus(id) {
-
-  const h = houses.find(x => x.id === id);
-
-  if (!h) return;
-
-  if (h.status === "none") h.status = "visited";
-  else if (h.status === "visited") h.status = "absent";
-  else h.status = "none";
-
-  updateMarker(h);
-  saveData();
-}
-
-/* ======================
-   8. 마커 색 변경
-====================== */
-function updateMarker(h) {
-
-  let color = "gray";
-
-  if (h.status === "visited") color = "green";
-  if (h.status === "absent") color = "red";
-
-  h.marker.setStyle({
-    color: color,
-    fillColor: color
-  });
-
-  h.marker.setPopupContent(`
-    <b>${h.name}</b><br>
-    ${h.address}<br>
-    상태: ${h.status}
-  `);
-}
-
-/* ======================
-   9. 저장
-====================== */
-function saveData() {
-  localStorage.setItem("houses", JSON.stringify(houses));
-}
+});
 
 </script>
 
