@@ -6,31 +6,32 @@
 
 <title>아산-인주 방문관리 PWA</title>
 
-<!-- Leaflet 지도 -->
+<!-- Leaflet -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <style>
 body {
-  margin:0;
+  margin: 0;
   font-family: Arial;
 }
 
 #topbar {
-  background:#2c3e50;
-  color:white;
-  padding:10px;
-  font-size:18px;
+  background: #2c3e50;
+  color: white;
+  padding: 10px;
+  font-size: 18px;
+}
+
+#info {
+  padding: 10px;
+  background: #f5f5f5;
+  font-size: 14px;
 }
 
 #map {
   height: 90vh;
   width: 100%;
-}
-
-#info {
-  padding:10px;
-  background:#f5f5f5;
 }
 </style>
 </head>
@@ -50,111 +51,128 @@ body {
 <div id="map"></div>
 
 <script>
-/* ================================
-   1. 기본 데이터 (150개 구조)
-================================ */
+
+/* =========================
+   1. 데이터
+========================= */
 let houses = JSON.parse(localStorage.getItem("houses")) || [];
 
-/* 처음 실행 시 더미 데이터 생성 */
+/* 최초 실행 */
 if (houses.length === 0) {
   for (let i = 1; i <= 150; i++) {
     houses.push({
-      id: i,
+      id: Number(i),
       name: "집 " + i,
       lat: 36.78 + (Math.random() * 0.02),
       lng: 126.45 + (Math.random() * 0.02),
-      status: "none"
+      status: "none",
+      marker: null
     });
   }
 }
 
-/* ================================
+/* =========================
    2. 지도 생성
-================================ */
+========================= */
 const map = L.map('map').setView([36.78, 126.45], 15);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19
 }).addTo(map);
 
-let markers = [];
+/* =========================
+   3. 마커 생성 (1회만)
+========================= */
+houses.forEach(h => {
 
-/* ================================
-   3. 지도 그리기 함수
-================================ */
-function renderMap() {
+  let color = "gray";
 
-  // 기존 마커 삭제
-  markers.forEach(m => map.removeLayer(m));
-  markers = [];
+  const marker = L.circleMarker([h.lat, h.lng], {
+    radius: 8,
+    color: color,
+    fillColor: color,
+    fillOpacity: 0.9,
+    weight: 2,
+    interactive: true
+  }).addTo(map);
 
-  let visited = 0;
-  let absent = 0;
+  h.marker = marker;
 
-  houses.forEach(h => {
+  marker.bindPopup(`<b>${h.name}</b><br>상태: ${h.status}`);
 
-    let color = "gray";
-
-    if (h.status === "visited") {
-      color = "green";
-      visited++;
-    }
-    if (h.status === "absent") {
-      color = "red";
-      absent++;
-    }
-
-    const marker = L.circleMarker([h.lat, h.lng], {
-      radius: 8,
-      color: color,
-      fillColor: color,
-      fillOpacity: 0.9
-    }).addTo(map);
-
-    marker.bindPopup(`
-      <b>${h.name}</b><br>
-      상태: ${h.status}
-    `);
-
-    marker.on("click", () => {
-      toggleStatus(h.id);
-    });
-
-    markers.push(marker);
+  marker.on("click", () => {
+    toggleStatus(h.id);
   });
 
-  document.getElementById("total").innerText = houses.length;
-  document.getElementById("visited").innerText = visited;
-  document.getElementById("absent").innerText = absent;
+});
 
-  saveData();
-}
-
-/* ================================
+/* =========================
    4. 상태 변경
-================================ */
+========================= */
 function toggleStatus(id) {
 
-  const h = houses.find(x => x.id === id);
+  const h = houses.find(x => x.id === Number(id));
+
+  if (!h) return;
 
   if (h.status === "none") h.status = "visited";
   else if (h.status === "visited") h.status = "absent";
   else h.status = "none";
 
-  renderMap();
+  updateMarker(h);
+  updateInfo();
+  saveData();
 }
 
-/* ================================
-   5. 저장
-================================ */
+/* =========================
+   5. 마커 색 업데이트
+========================= */
+function updateMarker(h) {
+
+  let color = "gray";
+
+  if (h.status === "visited") color = "green";
+  if (h.status === "absent") color = "red";
+
+  h.marker.setStyle({
+    color: color,
+    fillColor: color
+  });
+
+  h.marker.setPopupContent(
+    `<b>${h.name}</b><br>상태: ${h.status}`
+  );
+}
+
+/* =========================
+   6. 통계 업데이트
+========================= */
+function updateInfo() {
+
+  let visited = 0;
+  let absent = 0;
+
+  houses.forEach(h => {
+    if (h.status === "visited") visited++;
+    if (h.status === "absent") absent++;
+  });
+
+  document.getElementById("total").innerText = houses.length;
+  document.getElementById("visited").innerText = visited;
+  document.getElementById("absent").innerText = absent;
+}
+
+/* =========================
+   7. 저장
+========================= */
 function saveData() {
   localStorage.setItem("houses", JSON.stringify(houses));
 }
 
-/* ================================
-   6. 시작
-================================ */
-renderMap();
+/* =========================
+   8. 초기 통계
+========================= */
+updateInfo();
 
 </script>
 
