@@ -4,51 +4,28 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>아산 방문관리 V2</title>
+<title>방문관리 V2 FIX</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <style>
 body{margin:0;font-family:Arial}
-#top{
-background:#2c3e50;
-color:white;
-padding:10px;
-text-align:center;
-font-size:18px;
-font-weight:bold;
-}
-#panel{
-padding:10px;
-background:#f4f4f4;
-}
-textarea{
-width:100%;
-height:120px;
-}
-button{
-padding:10px;
-margin-top:5px;
-width:100%;
-}
-#map{
-height:70vh;
-}
+#map{height:80vh}
+textarea{width:100%;height:120px}
+button{width:100%;padding:10px}
+#panel{padding:10px;background:#f2f2f2}
 </style>
 </head>
 <body>
 
-<div id="top">아산 방문관리 V2 (자동 좌표 저장)</div>
-
 <div id="panel">
-<textarea id="input" placeholder="주소 입력 (한 줄씩)">
+<textarea id="input">
 충남 아산시 인주면 걸매길100번길 5-9
 충남 아산시 인주면 걸매길100번길 5-13
 충남 아산시 인주면 걸매길100번길 5-15
 </textarea>
-
-<button onclick="start()">좌표 생성 & 지도 표시</button>
+<button onclick="run()">지도 생성</button>
 </div>
 
 <div id="map"></div>
@@ -63,85 +40,72 @@ maxZoom:19
 
 let markers = [];
 
-// 저장 데이터
-let houses = JSON.parse(localStorage.getItem("houses_v2") || "[]");
-
-// 주소 → 좌표
 async function geocode(addr){
-    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addr)}`;
-    const res = await fetch(url);
-    const data = await res.json();
 
-    if(data && data.length>0){
-        return {
-            lat: parseFloat(data[0].lat),
-            lng: parseFloat(data[0].lon)
-        };
+    try{
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addr)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if(data && data.length>0){
+            return {
+                lat: parseFloat(data[0].lat),
+                lng: parseFloat(data[0].lon)
+            };
+        }
+    }catch(e){
+        console.log("API 오류",e);
     }
+
     return null;
 }
 
-// 실행
-async function start(){
-
-    const text = document.getElementById("input").value;
-    const lines = text.split("\n").map(v=>v.trim()).filter(v=>v);
+async function run(){
 
     markers.forEach(m=>map.removeLayer(m));
     markers = [];
 
-    houses = [];
+    const lines = document.getElementById("input").value
+        .split("\n")
+        .map(v=>v.trim())
+        .filter(v=>v);
 
     for(let i=0;i<lines.length;i++){
 
         const addr = lines[i];
 
+        console.log("주소 처리:",addr);
+
         const geo = await geocode(addr);
 
-        if(geo){
-
-            const house = {
-                id:i+1,
-                name: addr,
-                lat: geo.lat,
-                lng: geo.lng,
-                status:"미방문"
-            };
-
-            houses.push(house);
-
-            const marker = L.marker([geo.lat,geo.lng]).addTo(map)
-            .bindPopup(`
-                <b>${addr}</b><br>
-                상태: ${house.status}
-            `);
-
-            marker.on("click",()=>{
-
-                if(house.status==="미방문") house.status="방문";
-                else if(house.status==="방문") house.status="부재";
-                else house.status="미방문";
-
-                marker.setPopupContent(`
-                    <b>${addr}</b><br>
-                    상태: ${house.status}
-                `);
-
-                save();
-            });
-
-            markers.push(marker);
+        if(!geo){
+            console.log("좌표 실패:",addr);
+            continue;
         }
 
-        await new Promise(r=>setTimeout(r,1200)); // API 제한
-    }
+        let status = "미방문";
 
-    save();
+        const marker = L.marker([geo.lat,geo.lng]).addTo(map);
+
+        marker.bindPopup(getPopup(addr,status));
+
+        marker.on("click",function(){
+
+            if(status==="미방문") status="방문";
+            else if(status==="방문") status="부재";
+            else status="미방문";
+
+            marker.setPopupContent(getPopup(addr,status));
+        });
+
+        markers.push(marker);
+
+        await new Promise(r=>setTimeout(r,1000));
+    }
 }
 
-// 저장
-function save(){
-    localStorage.setItem("houses_v2", JSON.stringify(houses));
+function getPopup(addr,status){
+    return `<b>${addr}</b><br>상태: ${status}`;
 }
 
 </script>
