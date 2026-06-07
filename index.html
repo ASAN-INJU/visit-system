@@ -54,7 +54,7 @@ async function geocode(addr){
             };
         }
     }catch(e){
-        console.log("API 오류",e);
+        console.log(e);
     }
 
     return null;
@@ -74,38 +74,39 @@ async function run(){
 
         const addr = lines[i];
 
-        console.log("주소 처리:",addr);
-
         const geo = await geocode(addr);
 
-        if(!geo){
-            console.log("좌표 실패:",addr);
-            continue;
-        }
-
-        let status = "미방문";
+        if(!geo) continue;
 
         const marker = L.marker([geo.lat,geo.lng]).addTo(map);
 
-        marker.bindPopup(getPopup(addr,status));
+        // ✅ 핵심: marker에 상태 저장
+        marker.data = {
+            addr: addr,
+            status: "미방문"
+        };
 
-        marker.on("click",function(){
+        marker.bindPopup(getPopup(marker.data));
 
-            if(status==="미방문") status="방문";
-            else if(status==="방문") status="부재";
-            else status="미방문";
+        marker.on("click", function(){
 
-            marker.setPopupContent(getPopup(addr,status));
+            const d = marker.data;
+
+            if(d.status==="미방문") d.status="방문";
+            else if(d.status==="방문") d.status="부재";
+            else d.status="미방문";
+
+            marker.setPopupContent(getPopup(d));
         });
 
         markers.push(marker);
 
-        await new Promise(r=>setTimeout(r,1000));
+        await new Promise(r=>setTimeout(r,800));
     }
 }
 
-function getPopup(addr,status){
-    return `<b>${addr}</b><br>상태: ${status}`;
+function getPopup(data){
+    return `<b>${data.addr}</b><br>상태: ${data.status}`;
 }
 
 </script>
