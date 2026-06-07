@@ -4,21 +4,35 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>방문관리</title>
+<title>아산 방문관리</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <style>
-body{margin:0;font-family:Arial}
-#top{
-background:#2c3e50;
-color:white;
-padding:10px;
-text-align:center;
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
 }
+
+#top{
+    background:#2c3e50;
+    color:white;
+    padding:12px;
+    text-align:center;
+    font-size:20px;
+    font-weight:bold;
+}
+
+#info{
+    padding:10px;
+    background:#f5f5f5;
+    text-align:center;
+    font-size:16px;
+}
+
 #map{
-height:92vh;
+    height:85vh;
 }
 </style>
 </head>
@@ -26,45 +40,90 @@ height:92vh;
 
 <div id="top">아산 방문관리</div>
 
+<div id="info">
+총 가구 : <span id="total">0</span>
+</div>
+
 <div id="map"></div>
 
 <script>
 
-const map = L.map('map').setView([36.8900,126.4500],13);
+// 지도 생성
+const map = L.map('map').setView([36.8710,126.4280],15);
 
 L.tileLayer(
-'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+{
+    maxZoom:19
+}
 ).addTo(map);
 
-let houses = [
-{id:1,name:"1번집",lat:36.8900,lng:126.4500,status:"미방문"},
-{id:2,name:"2번집",lat:36.8920,lng:126.4520,status:"미방문"},
-{id:3,name:"3번집",lat:36.8940,lng:126.4480,status:"미방문"}
-];
+// 현재 위치 표시
+if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(function(pos){
 
-houses.forEach(h=>{
+        L.marker([
+            pos.coords.latitude,
+            pos.coords.longitude
+        ])
+        .addTo(map)
+        .bindPopup("현재 위치");
 
-const marker=L.marker([h.lat,h.lng]).addTo(map);
-
-marker.bindPopup(
-`${h.name}<br>상태:${h.status}`
-);
-
-marker.on("click",()=>{
-
-if(h.status==="미방문"){
-h.status="방문";
-}else if(h.status==="방문"){
-h.status="부재";
-}else{
-h.status="미방문";
+    });
 }
 
-marker.setPopupContent(
-`${h.name}<br>상태:${h.status}`
-);
+// 테스트용 가구 데이터
+let houses = [
 
-});
+{id:1,name:"걸매길100번길 5-5",lat:36.8710,lng:126.4280,status:"미방문"},
+{id:2,name:"걸매길100번길 5-3",lat:36.8712,lng:126.4282,status:"미방문"},
+{id:3,name:"걸매길100번길 5-9",lat:36.8714,lng:126.4284,status:"미방문"},
+{id:4,name:"걸매길100번길 5-13",lat:36.8716,lng:126.4286,status:"미방문"},
+{id:5,name:"걸매길100번길 5-15",lat:36.8718,lng:126.4288,status:"미방문"},
+{id:6,name:"걸매길100번길 8-6",lat:36.8720,lng:126.4290,status:"미방문"},
+{id:7,name:"걸매길100번길 5-6",lat:36.8722,lng:126.4292,status:"미방문"},
+{id:8,name:"걸매길100번길 8-8",lat:36.8724,lng:126.4294,status:"미방문"},
+{id:9,name:"걸매길100번길 19-8",lat:36.8726,lng:126.4296,status:"미방문"},
+{id:10,name:"걸매길100번길 22",lat:36.8728,lng:126.4298,status:"미방문"},
+{id:11,name:"걸매길100번길 23-8",lat:36.8730,lng:126.4300,status:"미방문"},
+{id:12,name:"걸매길100번길 26",lat:36.8732,lng:126.4302,status:"미방문"},
+{id:13,name:"걸매길100번길 29",lat:36.8734,lng:126.4304,status:"미방문"},
+{id:14,name:"걸매길100번길 34-4",lat:36.8736,lng:126.4306,status:"미방문"},
+{id:15,name:"걸매길100번길 34-10",lat:36.8738,lng:126.4308,status:"미방문"},
+{id:16,name:"걸매길100번길 34-7",lat:36.8740,lng:126.4310,status:"미방문"},
+{id:17,name:"걸매길100번길 39",lat:36.8742,lng:126.4312,status:"미방문"}
+
+];
+
+// 총 가구 수 표시
+document.getElementById("total").innerText = houses.length;
+
+// 마커 표시
+houses.forEach(h=>{
+
+    const marker = L.marker([h.lat,h.lng]).addTo(map);
+
+    marker.bindPopup(
+        "<b>"+h.name+"</b><br>상태 : "+h.status
+    );
+
+    marker.on("click",()=>{
+
+        if(h.status==="미방문"){
+            h.status="방문";
+        }
+        else if(h.status==="방문"){
+            h.status="부재";
+        }
+        else{
+            h.status="미방문";
+        }
+
+        marker.setPopupContent(
+            "<b>"+h.name+"</b><br>상태 : "+h.status
+        );
+
+    });
 
 });
 
