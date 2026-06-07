@@ -4,11 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>아산-인주 방문관리</title>
+<title>아산-인주 방문관리 V4 TEST</title>
 
-<link rel="manifest" href="manifest.json">
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
 
-<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_APP_KEY"></script>
+<!-- Kakao Map -->
+<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_APP_KEY"></script>
 
 <style>
 body { margin:0; font-family:Arial; }
@@ -20,11 +23,11 @@ header {
     text-align:center;
 }
 
-#map { width:100%; height:55vh; }
+#map { width:100%; height:45vh; }
 
 #info {
     padding:10px;
-    background:#f5f5f5;
+    background:#f3f3f3;
     font-weight:bold;
 }
 
@@ -33,61 +36,104 @@ header {
     margin:5px;
     padding:10px;
     border-radius:8px;
-    box-shadow:0 1px 3px rgba(0,0,0,0.2);
+    box-shadow:0 1px 2px rgba(0,0,0,0.2);
     cursor:pointer;
 }
 
 .done { background:#bff5c1 !important; }
+
+.small { font-size:12px; color:gray; }
 </style>
 </head>
 
 <body>
 
-<header>📍 아산-인주 방문관리</header>
+<header>📍 방문관리 V4 (TEST)</header>
 
-<div id="info">진행률: 0 / 150</div>
+<div id="info">로딩중...</div>
 <div id="map"></div>
 <div id="list"></div>
 
 <script>
-// 저장 불러오기
-let saved = localStorage.getItem("visitData");
-let data = saved ? JSON.parse(saved) : [];
 
-// 최초 생성
-if (data.length === 0) {
-    for (let i = 1; i <= 150; i++) {
-        data.push({
-            id: i,
-            name: "구역 " + i,
-            lat: 36.86 + Math.random() * 0.02,
-            lng: 126.92 + Math.random() * 0.02,
-            done: false
-        });
-    }
-}
+// ================= FIREBASE =================
+const firebaseConfig = {
+    apiKey: "YOUR_KEY",
+    authDomain: "YOUR_DOMAIN",
+    projectId: "YOUR_ID"
+};
 
-// 지도
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// ================= USER =================
+let userName = prompt("이름 입력") || "user";
+
+// ================= MAP =================
 let map = new kakao.maps.Map(document.getElementById('map'), {
     center: new kakao.maps.LatLng(36.8690, 126.9290),
     level: 6
 });
 
+let data = [];
 let markers = [];
 
-// 저장 함수
-function save() {
-    localStorage.setItem("visitData", JSON.stringify(data));
+// ================= LOAD =================
+async function loadData() {
+
+    let snap = await db.collection("visit").get();
+    data = snap.docs.map(d => d.data());
+
+    if (data.length === 0) {
+        for (let i = 1; i <= 150; i++) {
+            let item = {
+                id: i,
+                name: "구역 " + i,
+                lat: 36.86 + Math.random() * 0.02,
+                lng: 126.92 + Math.random() * 0.02,
+                done: false,
+                date: "",
+                user: ""
+            };
+
+            data.push(item);
+            db.collection("visit").doc(String(i)).set(item);
+        }
+    }
+
+    render();
 }
 
-// 진행률
+// ================= SAVE =================
+function save(item) {
+    db.collection("visit").doc(String(item.id)).set(item);
+}
+
+// ================= TOGGLE =================
+function toggle(item) {
+
+    item.done = !item.done;
+
+    if (item.done) {
+        item.date = new Date().toLocaleString();
+        item.user = userName;
+    } else {
+        item.date = "";
+        item.user = "";
+    }
+
+    save(item);
+    render();
+}
+
+// ================= INFO =================
 function updateInfo() {
-    let doneCount = data.filter(d => d.done).length;
+    let done = data.filter(d => d.done).length;
     document.getElementById("info").innerText =
-        "진행률: " + doneCount + " / 150";
+        `진행률: ${done}/150 | 사용자: ${userName}`;
 }
 
-// 렌더
+// ================= RENDER =================
 function render() {
 
     updateInfo();
@@ -100,44 +146,40 @@ function render() {
 
     data.forEach(item => {
 
-        // 마커 색 변경
-        let imageSrc = item.done
-            ? "https://maps.google.com/mapfiles/ms/icons/green-dot.png"
-            : "https://maps.google.com/mapfiles/ms/icons/red-dot.png";
+        let icon = item.done
+        ? "https://maps.google.com/mapfiles/ms/icons/green-dot.png"
+        : "https://maps.google.com/mapfiles/ms/icons/red-dot.png";
 
         let marker = new kakao.maps.Marker({
             position: new kakao.maps.LatLng(item.lat, item.lng),
             map: map,
-            image: new kakao.maps.MarkerImage(imageSrc, new kakao.maps.Size(32,32))
+            image: new kakao.maps.MarkerImage(icon, new kakao.maps.Size(30,30))
         });
+
+        kakao.maps.event.addListener(marker, () => toggle(item));
 
         markers.push(marker);
 
-        function toggle() {
-            item.done = !item.done;
-            save();
-            render();
-        }
-
-        kakao.maps.event.addListener(marker, toggle);
-
         let div = document.createElement("div");
         div.className = "card" + (item.done ? " done" : "");
-        div.innerHTML = item.name;
 
-        div.onclick = toggle;
+        div.innerHTML = `
+            <b>${item.name}</b><br>
+            <span class="small">
+                ${item.done ? "완료" : "미완료"}<br>
+                ${item.user || ""} ${item.date || ""}
+            </span>
+        `;
+
+        div.onclick = () => toggle(item);
 
         list.appendChild(div);
     });
 }
 
-render();
-</script>
+// ================= START =================
+loadData();
 
-<script>
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("sw.js");
-}
 </script>
 
 </body>
