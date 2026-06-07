@@ -1,282 +1,89 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>방문관리 FINAL 시스템</title>
+
+<title>아산-인주 방문관리</title>
 
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#4CAF50">
-
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 
 <style>
-body{font-family:Arial;margin:0;}
-
-#login{padding:20px;}
-#app{display:none;}
-
-.container{display:flex;height:100vh;}
-#map{width:60%;}
-#panel{width:40%;overflow:auto;padding:10px;}
-
-.summary{
-    background:#f5f5f5;
-    padding:10px;
+body {
+    font-family: Arial;
+    margin: 0;
+    padding: 0;
+    background: #f4f6f8;
 }
 
-.card{
-    border:1px solid #ccc;
-    padding:10px;
-    margin:10px 0;
-    border-radius:8px;
+header {
+    background: #2d89ef;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    font-size: 18px;
 }
 
-button{margin:2px;padding:5px;}
+.container {
+    padding: 15px;
+}
 
-.status{font-weight:bold;}
+.card {
+    background: white;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    cursor: pointer;
+}
+
+.done {
+    background: #d4f8d4 !important;
+}
 </style>
 </head>
 
 <body>
 
-<!-- 로그인 -->
-<div id="login">
-    <h2>📍 방문 시스템 로그인</h2>
-    <input id="userName" placeholder="이름 입력">
-    <button onclick="login()">시작</button>
-</div>
+<header>📍 아산-인주 방문관리</header>
 
-<!-- 앱 -->
-<div id="app">
-
-<button onclick="logout()">로그아웃</button>
-
-<div class="summary">
-내 구역: <span id="myZone"></span><br>
-진행률: <span id="rate"></span>%
-</div>
-
-<div class="container">
-    <div id="map"></div>
-    <div id="panel"><div id="list"></div></div>
-</div>
-
-</div>
-
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<div class="container" id="list"></div>
 
 <script>
+// 샘플 10개 (나중에 150개 확장 가능)
+let data = [];
 
-// =====================
-// Firebase (본인 값 필수)
-// =====================
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "XXXX",
-  appId: "XXXX"
-};
-
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
-// =====================
-// 데이터 (150개 고정)
-// =====================
-let houses = [];
-
-for(let i=1;i<=150;i++){
-    houses.push({
-        id:i,
-        name:"현대로 "+(1200+i),
-        desc:"구역 "+i,
-        status:"none",
-        lat:36.8+i*0.0004,
-        lng:126.9+i*0.0004
+for (let i = 1; i <= 20; i++) {
+    data.push({
+        id: i,
+        name: "구역 " + i,
+        done: false
     });
 }
 
-// =====================
-// 상태
-// =====================
-let userName="";
-let myZone=1;
-let currentHouses=[];
+function render() {
+    let list = document.getElementById("list");
+    list.innerHTML = "";
 
-// =====================
-// 지도
-// =====================
-let map=L.map('map').setView([36.8,126.9],13);
+    data.forEach(item => {
+        let div = document.createElement("div");
+        div.className = "card" + (item.done ? " done" : "");
+        div.innerHTML = item.name;
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-    attribution:''
-}).addTo(map);
-
-let markers=[];
-
-// =====================
-// 로그인 + 자동 배정
-// =====================
-function login(){
-
-    userName=document.getElementById("userName").value;
-
-    if(!userName){
-        alert("이름 입력");
-        return;
-    }
-
-    myZone=(userName.length % 15)+1;
-
-    document.getElementById("login").style.display="none";
-    document.getElementById("app").style.display="block";
-
-    document.getElementById("myZone").innerText=myZone+"번";
-
-    loadZone();
-}
-
-// =====================
-// 로그아웃
-// =====================
-function logout(){
-    location.reload();
-}
-
-// =====================
-// 구역 로딩
-// =====================
-function loadZone(){
-
-    let start=(myZone-1)*10+1;
-    let end=myZone*10;
-
-    currentHouses=houses.filter(h=>h.id>=start && h.id<=end);
-
-    render();
-    drawMarkers();
-}
-
-// =====================
-// 상태 저장 (Firebase)
-// =====================
-function setStatus(id,status){
-
-    db.collection("houses").doc(String(id)).set({
-        id:id,
-        status:status,
-        time:Date.now()
-    });
-
-}
-
-// =====================
-// 실시간 동기화
-// =====================
-db.collection("houses").onSnapshot(snapshot=>{
-
-    snapshot.docChanges().forEach(change=>{
-
-        let data=change.doc.data();
-
-        let h=houses.find(x=>x.id==data.id);
-
-        if(h){
-            h.status=data.status;
-        }
-    });
-
-    loadZone();
-});
-
-// =====================
-// 지도 마커
-// =====================
-function drawMarkers(){
-
-    markers.forEach(m=>map.removeLayer(m));
-    markers=[];
-
-    currentHouses.forEach(h=>{
-
-        let color="blue";
-        if(h.status==="visited") color="green";
-        if(h.status==="absent") color="orange";
-        if(h.status==="reject") color="red";
-        if(h.status==="closed") color="gray";
-
-        let m=L.circleMarker([h.lat,h.lng],{
-            radius:7,
-            color:color
-        }).addTo(map);
-
-        m.bindPopup(`<b>${h.name}</b><br>${h.status}`);
-
-        m.on('click',()=>{
-            setStatus(h.id,"visited");
-        });
-
-        markers.push(m);
-    });
-
-    if(currentHouses.length){
-        map.setView([currentHouses[0].lat,currentHouses[0].lng],15);
-    }
-}
-
-// =====================
-// 화면 렌더
-// =====================
-function render(){
-
-    let list=document.getElementById("list");
-    list.innerHTML="";
-
-    let total=currentHouses.length;
-    let done=currentHouses.filter(h=>h.status==="visited").length;
-
-    let rate= total ? Math.round(done/total*100) : 0;
-
-    document.getElementById("rate").innerText=rate;
-
-    currentHouses.forEach(h=>{
-
-        let statusText="미방문";
-        if(h.status==="visited") statusText="방문";
-        if(h.status==="absent") statusText="부재중";
-        if(h.status==="reject") statusText="거절";
-        if(h.status==="closed") statusText="폐문";
-
-        let div=document.createElement("div");
-        div.className="card";
-
-        div.innerHTML=`
-            <b>${h.name}</b><br>
-            ${h.desc}<br>
-            상태: <span class="status">${statusText}</span><br>
-
-            <button onclick="setStatus(${h.id},'visited')">방문</button>
-            <button onclick="setStatus(${h.id},'absent')">부재중</button>
-            <button onclick="setStatus(${h.id},'reject')">거절</button>
-            <button onclick="setStatus(${h.id},'closed')">폐문</button>
-        `;
+        div.onclick = function() {
+            item.done = !item.done;
+            render();
+        };
 
         list.appendChild(div);
     });
 }
 
+render();
 </script>
 
-<!-- PWA 등록 -->
 <script>
-if("serviceWorker" in navigator){
+if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js");
 }
 </script>
