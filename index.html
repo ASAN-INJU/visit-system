@@ -1,1 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>인주회중</title>
+<style>
+body{font-family:-apple-system,sans-serif;background:#f5f7fb;margin:0}
+.box{max-width:480px;margin:12px auto;background:#fff;border:2px solid #153b63;border-radius:20px;padding:12px}
+h2{text-align:center;color:#153b63;margin:8px 0 10px;font-size:22px}
+.progress{font-weight:bold;color:#153b63;margin:6px 0 10px}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:8px}
+.etcgrid{display:none;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+button{padding:10px 4px;border:0;border-radius:10px;font-weight:bold;font-size:14px}
+.done{background:#dff5e5}.abs{background:#fff1c7}.rev{background:#e5efff}.rej{background:#ffe0e0}.etc{background:#eee}
+.card{border:1px solid #ccc;border-radius:12px;padding:9px;margin:8px 0;font-size:17px;line-height:1.45}
+.state{font-size:15px;color:#555;margin-top:3px}
+.nav{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.nav button{background:#153b63;color:white;font-size:16px}
+</style>
+</head>
+<body>
+<div class="box">
+<h2>걸매리 1~3 / 12집</h2>
+<div class="progress">진행률 0%</div>
 
+<div class="card">
+① 걸매길100번길 5-5
+<div class="state">상태 : 미방문</div>
+<div class="grid">
+<button class="done">완료</button>
+<button class="abs">부재</button>
+<button class="rev">재방문</button>
+<button class="rej">거절</button>
+<button class="etc" onclick="toggleEtc(1)">기타▼</button>
+</div>
+<div id="etc1" class="etcgrid">
+<button>폐가</button><button>창고</button><button>축사</button>
+</div>
+</div>
+
+<div class="card">
+② 걸매길100번길 5-3
+<div class="state">상태 : 미방문</div>
+<div class="grid">
+<button class="done">완료</button>
+<button class="abs">부재</button>
+<button class="rev">재방문</button>
+<button class="rej">거절</button>
+<button class="etc" onclick="toggleEtc(2)">기타▼</button>
+</div>
+<div id="etc2" class="etcgrid">
+<button>폐가</button><button>창고</button><button>축사</button>
+</div>
+</div>
+
+<div class="card">
+③ 걸매길100번길 5-9
+<div class="state">상태 : 미방문</div>
+<div class="grid">
+<button class="done">완료</button>
+<button class="abs">부재</button>
+<button class="rev">재방문</button>
+<button class="rej">거절</button>
+<button class="etc" onclick="toggleEtc(3)">기타▼</button>
+</div>
+<div id="etc3" class="etcgrid">
+<button>폐가</button><button>창고</button><button>축사</button>
+</div>
+</div>
+
+<div class="nav">
+<button>◀ 이전3집</button>
+<button>다음3집 ▶</button>
+</div>
+</div>
+
+<script>
+function toggleEtc(no){
+  const box=document.getElementById("etc"+no);
+  box.style.display=box.style.display==="grid" ? "none" : "grid";
+}
+</script>
+</body>
+</html>
