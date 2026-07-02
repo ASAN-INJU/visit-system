@@ -1,1 +1,378 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>인주회중</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR","Malgun Gothic",sans-serif;background:#f7f9fc;color:#111}
+.screen{min-height:100vh;display:none;justify-content:center;align-items:flex-start;padding:16px}
+.active{display:flex}
+.card{width:100%;max-width:520px;background:white;border:2px solid #153b63;border-radius:24px;padding:22px 16px;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.08)}
+.logo,.title{font-size:27px;font-weight:800;color:#153b63;margin-bottom:18px}
+.welcome{font-size:26px;font-weight:800;line-height:1.45;margin:24px 0}
+.verse{margin-top:20px;padding:16px;border:1px solid #153b63;border-radius:16px;font-size:17px;line-height:1.8;word-break:keep-all}
+.ref{margin-top:10px;font-weight:700;color:#153b63}
+.small{color:#666;font-size:15px;margin-top:14px}
+.footer{margin-top:22px;background:#153b63;color:white;padding:13px;border-radius:14px;font-weight:700}
+.menu-btn,.select-btn{width:100%;border:2px solid #153b63;background:white;border-radius:18px;padding:18px 16px;margin:10px 0;font-size:21px;font-weight:800;text-align:left;cursor:pointer}
+.menu-btn span{display:block;font-size:15px;font-weight:500;color:#555;margin-top:7px;line-height:1.6}
+.action{border:none;border-radius:14px;padding:13px 8px;font-size:17px;font-weight:900;cursor:pointer}
+.back{background:#153b63;color:white;width:100%;margin-top:10px}
+.gray{background:#eef2f7}
+.done{background:#dff5e5}.absent{background:#fff1c7}.revisit{background:#e5efff}.reject{background:#ffe0e0}.etc{background:#eeeeee}
+.area-head{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:18px;font-weight:900;color:#153b63;margin-bottom:12px}
+.progress{margin:10px 0;text-align:left;font-weight:800;color:#153b63}
+.bar{height:12px;background:#e5e7eb;border-radius:99px;overflow:hidden;margin-top:8px}
+.bar-fill{height:100%;background:#153b63;width:0%}
+.status-text{font-size:15px;color:#555;margin-top:7px}
+.status-row{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:12px 0}
+.status-row button{min-height:54px;font-size:15px;line-height:1.2}
+.house-card{border:2px solid #e5e7eb;border-radius:18px;padding:14px;margin:10px 0;text-align:left;background:#fff}
+.house-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.num{width:44px;height:44px;border-radius:50%;background:#153b63;color:white;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;flex:0 0 auto}
+.addr{font-size:20px;font-weight:900;line-height:1.35}
+.memo{font-size:16px;color:#666;line-height:1.6;margin:8px 0}
+.current{border-color:#153b63;box-shadow:0 0 0 3px rgba(21,59,99,.08)}
+.house-actions{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:10px}
+.house-actions button{font-size:13px;padding:10px 2px;border-radius:11px}
+.nav-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.nav-row button{font-size:18px}
+.input{width:100%;padding:15px;border:2px solid #153b63;border-radius:14px;font-size:18px;margin:8px 0}
+.list{background:#f1f5f9;border-radius:14px;padding:12px;text-align:left;margin-top:12px;font-size:17px;line-height:1.8}
+.badge{display:inline-block;background:#153b63;color:white;border-radius:99px;padding:3px 8px;font-size:13px;margin-left:4px}
+.end-message{font-size:25px;font-weight:800;color:#153b63;line-height:1.7}
+@media(max-width:420px){
+  .screen{padding:10px}
+  .card{padding:18px 12px}
+  .status-row button{font-size:13px;min-height:50px}
+  .house-actions button{font-size:12px}
+  .addr{font-size:18px}
+}
+</style>
+</head>
+<body>
 
+<section id="splash" class="screen active">
+  <div class="card">
+    <div class="logo">인주회중</div>
+    <div class="welcome">야외봉사 참여를<br>환영합니다!</div>
+    <div class="small">잠시 후 메뉴로 이동합니다</div>
+    <div class="verse">
+      “그리고 이 왕국의 좋은 소식이 모든 민족에게 증거되기 위해
+      사람이 거주하는 온 땅에 전파될 것입니다.
+      그리고 끝이 올 것입니다.”
+      <div class="ref">— 마태복음 24:14</div>
+    </div>
+    <div class="footer">인주회중</div>
+  </div>
+</section>
+
+<section id="menu" class="screen">
+  <div class="card">
+    <div class="title">오늘 야외봉사를 선택해 주세요!</div>
+    <button class="menu-btn" onclick="showScreen('areaSelect')">🏠 호별방문<span>구역 방문 기록을 시작합니다</span></button>
+    <button class="menu-btn" onclick="showScreen('display')">🪧 전시대봉사<span>수요일 18:00~20:00<br>토요일 10:00~12:00</span></button>
+    <button class="menu-btn" onclick="showScreen('today')">👥 오늘 참여<span>참여자와 차량 정보를 입력합니다</span></button>
+    <button class="menu-btn" onclick="showScreen('admin')">👤 관리자<span>짝짓기 · 차량 · 진행 현황 관리</span></button>
+    <button class="menu-btn" onclick="showScreen('end')">마침<span>오늘 봉사를 마칩니다</span></button>
+    <div class="footer">인주회중</div>
+  </div>
+</section>
+
+<section id="areaSelect" class="screen">
+  <div class="card">
+    <div class="title">방문 구역 선택</div>
+    <button class="select-btn" onclick="startArea('걸매리')">걸매리</button>
+    <button class="select-btn" onclick="startArea('문방리')">문방리</button>
+    <button class="select-btn" onclick="startArea('관암리')">관암리</button>
+    <button class="action back" onclick="showScreen('menu')">메뉴로</button>
+  </div>
+</section>
+
+<section id="visit" class="screen">
+  <div class="card">
+    <div class="area-head">
+      <div id="areaName">걸매리</div>
+      <div id="rangeText">1~3 / 0</div>
+    </div>
+
+    <div class="progress">
+      진행률
+      <div class="bar"><div class="bar-fill" id="barFill"></div></div>
+      <div class="status-text" id="progressText">0 / 0 기록</div>
+    </div>
+
+    <div class="status-row">
+      <button class="action done" onclick="setGroupStatus('방문완료')">방문<br>완료</button>
+      <button class="action absent" onclick="setGroupStatus('부재')">부재</button>
+      <button class="action revisit" onclick="setGroupStatus('재방문')">재방문</button>
+      <button class="action reject" onclick="setGroupStatus('방문거절')">방문<br>거절</button>
+      <button class="action etc" onclick="toggleEtc()">기타</button>
+    </div>
+
+    <div id="etcBox" class="status-row" style="display:none;grid-template-columns:repeat(3,1fr)">
+      <button class="action gray" onclick="setGroupStatus('폐가')">폐가</button>
+      <button class="action gray" onclick="setGroupStatus('창고')">창고</button>
+      <button class="action gray" onclick="setGroupStatus('축사')">축사</button>
+    </div>
+
+    <div class="status-text">※ 위 버튼은 선택된 집에 적용됩니다. 집 카드를 누르면 선택됩니다.</div>
+
+    <div id="houseList"></div>
+
+    <div class="nav-row">
+      <button class="action gray" onclick="prevGroup()">이전 3집</button>
+      <button class="action back" onclick="nextGroup()">다음 3집</button>
+    </div>
+    <button class="action back" onclick="showScreen('areaSelect')">구역 선택으로</button>
+  </div>
+</section>
+
+<section id="display" class="screen">
+  <div class="card">
+    <div class="title">전시대봉사</div>
+    <div class="list">
+      수요일 18:00~20:00<br>
+      토요일 10:00~12:00<br><br>
+      장소: 영인면사무소 앞
+    </div>
+    <button class="action back" onclick="showScreen('menu')">메뉴로</button>
+  </div>
+</section>
+
+<section id="today" class="screen">
+  <div class="card">
+    <div class="title">오늘 참여</div>
+    <input id="nameInput" class="input" placeholder="이름 입력">
+    <button class="action done" style="width:100%" onclick="addPerson(false)">참여</button>
+    <button class="action revisit" style="width:100%" onclick="addPerson(true)">차량 제공</button>
+    <button class="action gray" style="width:100%" onclick="addMeetingOnly()">모임만 참석</button>
+    <div class="list" id="peopleList">아직 참여자가 없습니다.</div>
+    <button class="action reject" style="width:100%" onclick="clearPeople()">명단 초기화</button>
+    <button class="action back" onclick="showScreen('menu')">메뉴로</button>
+  </div>
+</section>
+
+<section id="admin" class="screen">
+  <div class="card">
+    <div class="title">관리자</div>
+    <div class="list" id="adminList">참여자 없음</div>
+    <button class="action done" style="width:100%" onclick="makePairs()">짝짓기 만들기</button>
+    <div class="list" id="pairList">짝짓기 결과가 없습니다.</div>
+    <button class="action back" onclick="showScreen('menu')">메뉴로</button>
+  </div>
+</section>
+
+<section id="end" class="screen">
+  <div class="card">
+    <div class="end-message">오늘 봉사도<br>수고 많으셨습니다!</div>
+    <div class="verse">작은 친절과 따뜻한 말 한마디가<br>누군가에게 큰 힘이 될 수 있습니다.</div>
+    <button class="action back" onclick="showScreen('menu')">메뉴로</button>
+  </div>
+</section>
+
+<script>
+const areas={
+  "걸매리":[
+    {no:"1",addr:"걸매길100번길 5-5",memo:""},
+    {no:"2",addr:"걸매길100번길 5-3",memo:""},
+    {no:"3",addr:"걸매길100번길 5-9",memo:""},
+    {no:"4",addr:"걸매길100번길 5-13",memo:""},
+    {no:"5",addr:"걸매길100번길 5-15",memo:""},
+    {no:"6",addr:"걸매길100번길 8-6",memo:""},
+    {no:"7",addr:"걸매길100번길 5-6",memo:""},
+    {no:"8",addr:"걸매길100번길 8-8",memo:""},
+    {no:"9",addr:"걸매길100번길 19-8",memo:""}
+  ],
+  "문방리":[
+    {no:"1",addr:"아산만로1462번길 7",memo:""},
+    {no:"2",addr:"아산만로1462번길 13-9",memo:""},
+    {no:"3",addr:"아산만로1462번길 13-11",memo:""},
+    {no:"4",addr:"아산만로1462번길 15",memo:""},
+    {no:"5",addr:"아산만로1462번길 16",memo:""},
+    {no:"6",addr:"문방리 391-8",memo:""},
+    {no:"7",addr:"문방리 391-12",memo:""},
+    {no:"8",addr:"문방리 391-13",memo:""},
+    {no:"9",addr:"문방리 392-5",memo:""}
+  ],
+  "관암리":[
+    {no:"1",addr:"관암리 1번",memo:""},
+    {no:"2",addr:"관암리 2번",memo:""},
+    {no:"3",addr:"관암리 3번",memo:""},
+    {no:"4",addr:"관암리 4번",memo:""},
+    {no:"5",addr:"관암리 5번",memo:""},
+    {no:"6",addr:"관암리 6번",memo:""}
+  ]
+};
+
+let currentArea="";
+let groupStart=0;
+let selectedIndex=0;
+
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  if(id==="admin") renderAdmin();
+}
+
+setTimeout(()=>showScreen("menu"),2000);
+
+function key(){return "visit_"+currentArea}
+function getRecords(){return JSON.parse(localStorage.getItem(key())||"{}")}
+function saveRecords(r){localStorage.setItem(key(),JSON.stringify(r))}
+
+function startArea(area){
+  currentArea=area;
+  groupStart=0;
+  selectedIndex=0;
+  showScreen("visit");
+  renderVisit();
+}
+
+function renderVisit(){
+  const data=areas[currentArea];
+  const records=getRecords();
+  document.getElementById("areaName").textContent=currentArea;
+  const end=Math.min(groupStart+3,data.length);
+  document.getElementById("rangeText").textContent=(groupStart+1)+"~"+end+" / "+data.length;
+
+  const houseList=document.getElementById("houseList");
+  houseList.innerHTML="";
+  for(let i=groupStart;i<end;i++){
+    const h=data[i];
+    const status=records[h.no]||"미방문";
+    const div=document.createElement("div");
+    div.className="house-card"+(i===selectedIndex?" current":"");
+    div.onclick=()=>{selectedIndex=i;renderVisit()};
+    div.innerHTML=`
+      <div class="house-top">
+        <div class="num">${h.no}</div>
+        <div class="addr">${h.addr}</div>
+      </div>
+      <div class="memo">메모: ${h.memo||"-"}</div>
+      <div class="memo">현재 상태: <b>${status}</b></div>
+      <div class="house-actions">
+        <button class="action done" onclick="event.stopPropagation();setOneStatus(${i},'방문완료')">완료</button>
+        <button class="action absent" onclick="event.stopPropagation();setOneStatus(${i},'부재')">부재</button>
+        <button class="action revisit" onclick="event.stopPropagation();setOneStatus(${i},'재방문')">재방문</button>
+        <button class="action reject" onclick="event.stopPropagation();setOneStatus(${i},'방문거절')">거절</button>
+        <button class="action etc" onclick="event.stopPropagation();selectedIndex=${i};toggleEtc()">기타</button>
+      </div>
+    `;
+    houseList.appendChild(div);
+  }
+  renderProgress();
+}
+
+function setOneStatus(index,status){
+  selectedIndex=index;
+  const h=areas[currentArea][index];
+  const records=getRecords();
+  records[h.no]=status;
+  saveRecords(records);
+  document.getElementById("etcBox").style.display="none";
+  renderVisit();
+}
+
+function setGroupStatus(status){
+  setOneStatus(selectedIndex,status);
+}
+
+function toggleEtc(){
+  const box=document.getElementById("etcBox");
+  box.style.display=box.style.display==="none"?"grid":"none";
+}
+
+function renderProgress(){
+  const data=areas[currentArea];
+  const records=getRecords();
+  const done=Object.keys(records).length;
+  const percent=Math.round(done/data.length*100);
+  document.getElementById("barFill").style.width=percent+"%";
+  document.getElementById("progressText").textContent=done+" / "+data.length+" 기록 ("+percent+"%)";
+}
+
+function nextGroup(){
+  const data=areas[currentArea];
+  if(groupStart+3<data.length){
+    groupStart+=3;
+    selectedIndex=groupStart;
+    document.getElementById("etcBox").style.display="none";
+    renderVisit();
+  }else{
+    alert("마지막 3집입니다.");
+  }
+}
+
+function prevGroup(){
+  if(groupStart>0){
+    groupStart-=3;
+    selectedIndex=groupStart;
+    document.getElementById("etcBox").style.display="none";
+    renderVisit();
+  }
+}
+
+function getPeople(){return JSON.parse(localStorage.getItem("people")||"[]")}
+function savePeople(p){localStorage.setItem("people",JSON.stringify(p))}
+
+function addPerson(car){
+  const input=document.getElementById("nameInput");
+  const name=input.value.trim();
+  if(!name){alert("이름을 입력하세요.");return}
+  const people=getPeople();
+  people.push({name,car,meeting:false});
+  savePeople(people);
+  input.value="";
+  renderPeople();
+}
+
+function addMeetingOnly(){
+  const input=document.getElementById("nameInput");
+  const name=input.value.trim();
+  if(!name){alert("이름을 입력하세요.");return}
+  const people=getPeople();
+  people.push({name,car:false,meeting:true});
+  savePeople(people);
+  input.value="";
+  renderPeople();
+}
+
+function renderPeople(){
+  const people=getPeople();
+  const box=document.getElementById("peopleList");
+  if(!people.length){box.textContent="아직 참여자가 없습니다.";return}
+  box.innerHTML=people.map((p,i)=>`${i+1}. ${p.name}${p.car?' <span class="badge">차량</span>':''}${p.meeting?' <span class="badge">모임만</span>':''}`).join("<br>");
+}
+
+function clearPeople(){
+  if(confirm("오늘 참여 명단을 지울까요?")){
+    localStorage.removeItem("people");
+    renderPeople();
+  }
+}
+
+function renderAdmin(){
+  const people=getPeople();
+  const admin=document.getElementById("adminList");
+  if(!people.length){admin.textContent="참여자 없음";return}
+  const cars=people.filter(p=>p.car).length;
+  admin.innerHTML="참여자 "+people.length+"명<br>차량 "+cars+"대<br><br>"+people.map((p,i)=>`${i+1}. ${p.name}${p.car?' 🚗':''}${p.meeting?' (모임만)':''}`).join("<br>");
+}
+
+function makePairs(){
+  const people=getPeople().filter(p=>!p.meeting);
+  const result=[];
+  for(let i=0;i<people.length;i+=2){
+    if(people[i+1]) result.push(`${people[i].name} - ${people[i+1].name}`);
+    else result.push(`${people[i].name} - 대기`);
+  }
+  document.getElementById("pairList").innerHTML=result.length?result.join("<br>"):"짝을 만들 참여자가 없습니다.";
+}
+
+renderPeople();
+</script>
+</body>
+</html>
