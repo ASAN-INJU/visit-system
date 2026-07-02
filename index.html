@@ -1,1 +1,305 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>인주회중</title>
 
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR","Malgun Gothic",sans-serif;
+  background:#f7f9fc;
+  color:#111;
+}
+
+.screen{
+  min-height:100vh;
+  display:none;
+  justify-content:center;
+  align-items:center;
+  padding:22px;
+}
+
+.active{display:flex}
+
+.card{
+  width:100%;
+  max-width:430px;
+  background:white;
+  border:2px solid #153b63;
+  border-radius:24px;
+  padding:28px 22px;
+  text-align:center;
+  box-shadow:0 8px 24px rgba(0,0,0,.08);
+}
+
+.logo{
+  font-size:28px;
+  font-weight:800;
+  color:#153b63;
+  margin-bottom:20px;
+}
+
+.welcome{
+  font-size:26px;
+  font-weight:800;
+  line-height:1.45;
+  margin:24px 0;
+}
+
+.verse{
+  margin-top:26px;
+  padding:18px;
+  border-radius:16px;
+  background:#f1f5f9;
+  font-size:17px;
+  line-height:1.8;
+  word-break:keep-all;
+}
+
+.ref{
+  margin-top:10px;
+  font-weight:700;
+  color:#153b63;
+}
+
+.small{
+  color:#666;
+  font-size:15px;
+  margin-top:14px;
+}
+
+.title{
+  font-size:25px;
+  font-weight:800;
+  color:#153b63;
+  margin-bottom:26px;
+}
+
+.menu-btn{
+  width:100%;
+  border:2px solid #153b63;
+  background:white;
+  color:#111;
+  border-radius:18px;
+  padding:20px 16px;
+  margin:12px 0;
+  font-size:22px;
+  font-weight:800;
+  text-align:left;
+  cursor:pointer;
+}
+
+.menu-btn span{
+  display:block;
+  font-size:15px;
+  font-weight:500;
+  color:#555;
+  margin-top:7px;
+  line-height:1.6;
+}
+
+.menu-btn:active{
+  background:#eef5ff;
+}
+
+.footer{
+  margin-top:28px;
+  background:#153b63;
+  color:white;
+  padding:13px;
+  border-radius:14px;
+  font-weight:700;
+}
+
+.area{
+  font-size:22px;
+  color:#153b63;
+  font-weight:800;
+}
+
+.house-box{
+  margin:24px auto;
+  border:3px solid #153b63;
+  border-radius:20px;
+  padding:18px;
+  max-width:260px;
+}
+
+.house-label{
+  font-size:16px;
+  color:#555;
+}
+
+.house-number{
+  font-size:42px;
+  font-weight:900;
+  color:#111;
+  margin-top:6px;
+}
+
+.info{
+  font-size:18px;
+  line-height:1.7;
+  margin-bottom:18px;
+}
+
+.direction{
+  background:#f1f5f9;
+  border-radius:16px;
+  padding:16px;
+  font-size:20px;
+  font-weight:800;
+  margin:16px 0;
+}
+
+.action{
+  width:100%;
+  border:none;
+  border-radius:16px;
+  padding:18px;
+  margin:9px 0;
+  font-size:21px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.done{background:#dff5e5}
+.absent{background:#fff1c7}
+.revisit{background:#e5efff}
+.reject{background:#ffe0e0}
+
+.back{
+  margin-top:16px;
+  background:#153b63;
+  color:white;
+}
+
+.end-message{
+  font-size:25px;
+  font-weight:800;
+  color:#153b63;
+  line-height:1.7;
+}
+</style>
+</head>
+
+<body>
+
+<!-- 1페이지: 환영 화면 -->
+<section id="splash" class="screen active">
+  <div class="card">
+    <div class="logo">인주회중</div>
+
+    <div class="welcome">
+      야외봉사 참여를<br>
+      환영합니다!
+    </div>
+
+    <div class="small">잠시 후 메뉴로 이동합니다</div>
+
+    <div class="verse">
+      “그리고 이 왕국의 좋은 소식이 모든 민족에게 증거되기 위해
+      사람이 거주하는 온 땅에 전파될 것입니다.
+      그리고 끝이 올 것입니다.”
+      <div class="ref">— 마태복음 24:14</div>
+    </div>
+
+    <div class="footer">인주회중</div>
+  </div>
+</section>
+
+<!-- 2페이지: 메인 메뉴 -->
+<section id="menu" class="screen">
+  <div class="card">
+    <div class="title">오늘 야외봉사를 선택해 주세요!</div>
+
+    <button class="menu-btn" onclick="showScreen('visit')">
+      🏠 호별방문
+      <span>구역 방문 기록을 시작합니다</span>
+    </button>
+
+    <button class="menu-btn">
+      🪧 전시대봉사
+      <span>수요일 18:00~20:00<br>토요일 10:00~12:00</span>
+    </button>
+
+    <button class="menu-btn">
+      👥 오늘 참여
+      <span>참여자와 차량 정보를 입력합니다</span>
+    </button>
+
+    <button class="menu-btn">
+      👤 관리자
+      <span>짝짓기 · 차량 · 진행 현황 관리</span>
+    </button>
+
+    <button class="menu-btn" onclick="showScreen('end')">
+      마침
+      <span>오늘 봉사를 마칩니다</span>
+    </button>
+
+    <div class="footer">인주회중</div>
+  </div>
+</section>
+
+<!-- 3페이지: 호별방문 예시 화면 -->
+<section id="visit" class="screen">
+  <div class="card">
+    <div class="area">걸매리</div>
+
+    <div class="house-box">
+      <div class="house-label">건물번호</div>
+      <div class="house-number">1181-35</div>
+    </div>
+
+    <div class="info">
+      여원다육이<br>
+      현대로 1181-35
+    </div>
+
+    <div class="direction">
+      📍 현재 위치 기준<br>
+      ↗ 오른쪽 방향 · 약 35m
+    </div>
+
+    <button class="action done">방문완료</button>
+    <button class="action absent">부재</button>
+    <button class="action revisit">재방문</button>
+    <button class="action reject">방문거절</button>
+
+    <button class="action back" onclick="showScreen('menu')">메뉴로</button>
+  </div>
+</section>
+
+<!-- 종료 화면 -->
+<section id="end" class="screen">
+  <div class="card">
+    <div class="end-message">
+      오늘도 수고 많으셨습니다.<br><br>
+      남은 하루,<br>
+      행복한 시간 되세요. 😊
+    </div>
+
+    <button class="action back" onclick="showScreen('menu')">돌아가기</button>
+  </div>
+</section>
+
+<script>
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>{
+    s.classList.remove('active');
+  });
+  document.getElementById(id).classList.add('active');
+}
+
+setTimeout(()=>{
+  showScreen('menu');
+},3000);
+</script>
+
+</body>
+</html>
