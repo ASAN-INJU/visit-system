@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>인주회중 걸매리</title>
+<style>
+:root{--navy:#1e3a5f;--ink:#111827;--muted:#5f6b78;--line:#d7e0ea;--soft:#f6f8fb}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR","Malgun Gothic",sans-serif;background:#f5f7fa;color:var(--ink)}
+.screen{min-height:100vh;display:none;justify-content:center;align-items:center;padding:18px 12px;opacity:0;transition:opacity .25s ease}
+.active{display:flex;opacity:1}
+.card{width:100%;max-width:470px;background:white;border:1.8px solid var(--navy);border-radius:22px;padding:22px 16px;text-align:center;box-shadow:0 8px 22px rgba(30,58,95,.08)}
+.logo{font-size:24px;font-weight:800;color:var(--navy);margin-bottom:16px}
+.welcome{font-size:23px;font-weight:800;line-height:1.45;margin:22px 0}
+.verse{margin-top:22px;padding:17px 15px;border:1px solid var(--line);border-radius:16px;background:#fff;font-size:16px;line-height:1.75;word-break:keep-all}
+.ref{margin-top:10px;font-weight:800;color:var(--navy);font-size:15px}
+.small{color:var(--muted);font-size:14px;margin-top:10px}
+.footer{margin-top:20px;background:var(--navy);color:white;padding:11px;border-radius:14px;font-weight:800;font-size:15px}
+.title{font-size:22px;font-weight:800;color:var(--navy);margin-bottom:22px}
+.menu-btn{width:100%;border:1.8px solid var(--navy);background:white;border-radius:17px;padding:17px;margin:12px 0;font-size:19px;font-weight:800;text-align:left;cursor:pointer;color:var(--ink)}
+.menu-btn span{display:block;font-size:14px;font-weight:500;color:var(--muted);margin-top:7px;line-height:1.55}
+button:active{transform:scale(.985);background:#eef4fb}
+.area-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.area{font-size:20px;color:var(--navy);font-weight:900}
+.page{font-size:14px;color:var(--muted);font-weight:800}
+.progress{margin:10px 0 14px;text-align:left;font-weight:800;color:var(--navy);font-size:14px;background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:12px}
+.bar{height:11px;background:#e5e9ef;border-radius:99px;overflow:hidden;margin-top:8px}
+.bar-fill{height:100%;background:var(--navy);width:0%;transition:width .25s ease}
+.house-card{border:1.7px solid var(--line);border-radius:18px;padding:12px 10px;margin:10px 0;text-align:left;background:#fff}
+.house-head{display:flex;justify-content:space-between;align-items:center;gap:9px}
+.house-num{font-size:23px;font-weight:900;color:#0f172a;border:2px solid var(--navy);border-radius:14px;padding:8px 8px;min-width:104px;text-align:center}
+.house-name{font-size:15px;font-weight:800;color:#111;line-height:1.35;flex:1}
+.house-addr{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.35}
+.status-line{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:11px}
+.status-btn{border:none;border-radius:10px;padding:9px 2px;font-size:12px;font-weight:900;cursor:pointer;white-space:nowrap}
+.done{background:#dff4e6}.absent{background:#fff0bd}.revisit{background:#e3ecff}.reject{background:#ffe0e0}.etc{background:#eeeeee}
+.saved{outline:2px solid var(--navy)}
+.memo-line{margin-top:8px;font-size:13px;color:#374151;background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:7px 9px;min-height:30px}
+.etc-panel{display:none;margin-top:8px;background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:9px}
+.etc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.etc-choice{border:1px solid var(--line);background:white;border-radius:9px;padding:8px 3px;font-size:12px;font-weight:900;color:#374151}
+.map-toggle{margin-top:8px;font-size:13px;font-weight:900;color:var(--navy);background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 9px;cursor:pointer}
+.map-box{display:none;margin-top:8px;border:1px solid var(--line);border-radius:12px;background:#f8fafc;padding:10px}
+.mini-map{height:90px;border-radius:10px;background:linear-gradient(135deg,#e9eff6 0 48%,#cfdbe8 48% 52%,#eef3f8 52%);position:relative;margin-bottom:8px}
+.mini-map:before{content:'현재 위치';position:absolute;left:10px;bottom:10px;background:#1e3a5f;color:white;font-size:11px;padding:4px 7px;border-radius:99px}
+.mini-map:after{content:'방문 집';position:absolute;right:12px;top:12px;background:#b91c1c;color:white;font-size:11px;padding:4px 7px;border-radius:99px}
+.guide-text{font-size:13px;line-height:1.55;color:#374151;text-align:left}
+.nav-row{display:flex;gap:10px;margin-top:14px}
+.action{width:100%;border:none;border-radius:15px;padding:15px;margin:7px 0;font-size:17px;font-weight:900;cursor:pointer}
+.back{background:var(--navy);color:white}.gray{background:#eef2f7;color:#111827}
+.end-message{font-size:23px;font-weight:800;color:var(--navy);line-height:1.65}
+@media(max-width:380px){.card{padding:20px 12px}.house-num{font-size:20px;min-width:92px}.status-btn{font-size:11px;padding:8px 1px}}
+</style>
+</head>
+<body>
+
+<section id="splash" class="screen active">
+<div class="card">
+<div class="logo">인주회중</div>
+<div class="welcome">야외봉사 참여를<br>환영합니다!</div>
+<div class="small">잠시 후 메뉴로 이동합니다</div>
+<div class="verse">“그리고 이 왕국의 좋은 소식이 모든 민족에게 증거되기 위해 사람이 거주하는 온 땅에 전파될 것입니다. 그리고 끝이 올 것입니다.”<div class="ref">— 마태복음 24:14</div></div>
+<div class="footer">인주회중</div>
+</div>
+</section>
+
+<section id="menu" class="screen">
+<div class="card">
+<div class="title">걸매리 현장 테스트</div>
+<button class="menu-btn" onclick="startVisit()">🏠 걸매리 호별방문<span>전체 주소 234개 · 한 화면에 3집씩 기록</span></button>
+<button class="menu-btn" onclick="showScreen('end')">마침<span>오늘 봉사를 마칩니다</span></button>
+<div class="footer">인주회중</div>
+</div>
+</section>
+
+<section id="visit" class="screen">
+<div class="card">
+<div class="area-top">
+<div class="area">걸매리</div>
+<div class="page" id="pageText">1 / 1</div>
+</div>
+
+<div class="progress">
+진행률 <span id="progressText">0 / 0</span>
+<div class="bar"><div class="bar-fill" id="barFill"></div></div>
+</div>
+
+<div id="houseList"></div>
+
+<div class="nav-row">
+<button class="action gray" onclick="prevPage()">이전 3집</button>
+<button class="action gray" onclick="nextPage()">다음 3집</button>
+</div>
+
+<button class="action back" onclick="showScreen('menu')">메뉴로</button>
+</div>
+</section>
+
+<section id="end" class="screen">
+<div class="card">
+<div class="end-message">오늘도 수고 많으셨습니다.<br><br>남은 하루,<br>행복한 시간 되세요. 😊</div>
+<button class="action back" onclick="showScreen('menu')">돌아가기</button>
+</div>
+</section>
+
+<script>
+const houses = [{"seq": "1", "num": "89-10", "name": "1번", "addr": "걸매길 89-10", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "2", "num": "89-9", "name": "2번", "addr": "걸매길 89-9", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "3", "num": "89-6", "name": "3번", "addr": "걸매길 89-6", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "4", "num": "93", "name": "4번", "addr": "걸매길 93", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "5", "num": "95", "name": "5번", "addr": "걸매길 95", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "6", "num": "99", "name": "6번", "addr": "걸매길 99", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "7", "num": "8", "name": "7번", "addr": "걸매길97번길 8", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "8", "num": "9-9", "name": "8번", "addr": "걸매길97번길 9-9", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "9", "num": "31", "name": "9번", "addr": "걸매길97번길 31", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "10", "num": "39", "name": "10번", "addr": "걸매길97번길 39", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "11", "num": "34", "name": "11번", "addr": "걸매길97번길 34", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "12", "num": "32", "name": "12번", "addr": "걸매길97번길 32", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "13", "num": "30", "name": "13번", "addr": "걸매길97번길 30", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "14", "num": "26-3", "name": "14번", "addr": "걸매길97번길 26-3", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "15", "num": "26-5", "name": "15번", "addr": "걸매길97번길 26-5", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "16", "num": "26-4", "name": "16번", "addr": "걸매길97번길 26-4", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "17", "num": "22", "name": "17번", "addr": "걸매길97번길 22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "18", "num": "20", "name": "18번", "addr": "걸매길97번길 20", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "19", "num": "12", "name": "19번", "addr": "걸매길97번길 12", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "20", "num": "10-7", "name": "20번", "addr": "걸매길97번길 10-7", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "21", "num": "10-9", "name": "21번", "addr": "걸매길97번길 10-9", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "22", "num": "10-23", "name": "22번", "addr": "걸매길97번길 10-23", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "23", "num": "10-25", "name": "23번", "addr": "걸매길97번길 10-25", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "24", "num": "10-27", "name": "24번", "addr": "걸매길97번길 10-27", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "25", "num": "10-33", "name": "25번", "addr": "걸매길97번길 10-33", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "26", "num": "10-30", "name": "26번", "addr": "걸매길97번길 10-30", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "27", "num": "10-17", "name": "27번", "addr": "걸매길97번길 10-17", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "28", "num": "10-19", "name": "28번", "addr": "걸매길97번길 10-19", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "29", "num": "10-21", "name": "29번", "addr": "걸매길97번길 10-21", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "30", "num": "10-12", "name": "30번", "addr": "걸매길97번길 10-12", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "31", "num": "10-8", "name": "31번", "addr": "걸매길97번길 10-8", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "32", "num": "10-4", "name": "32번", "addr": "걸매길97번길 10-4", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "33", "num": "107-3", "name": "33번", "addr": "걸매길 107-3", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "34", "num": "107-7", "name": "34번", "addr": "걸매길 107-7", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "35", "num": "107-2", "name": "35번", "addr": "걸매길 107-2", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "36", "num": "117-4", "name": "36번", "addr": "걸매길 117-4", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "37", "num": "119", "name": "37번", "addr": "걸매길 119", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "38", "num": "123-13", "name": "38번", "addr": "걸매길 123-13", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "39", "num": "123-21", "name": "39번", "addr": "걸매길 123-21", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "40", "num": "123-12", "name": "40번", "addr": "걸매길 123-12", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "41", "num": "89-9", "name": "41번", "addr": "걸매길 89-9", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "42", "num": "100", "name": "42번", "addr": "걸매길 100", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "43", "num": "5-5", "name": "43번", "addr": "걸매길100번길 5-5", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "44", "num": "5-3", "name": "44번", "addr": "걸매길100번길 5-3", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "45", "num": "5-9", "name": "45번", "addr": "걸매길100번길 5-9", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "46", "num": "5-13", "name": "46번", "addr": "걸매길100번길 5-13", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "47", "num": "5-15", "name": "47번", "addr": "걸매길100번길 5-15", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "48", "num": "8-6", "name": "48번", "addr": "걸매길100번길 8-6", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "49", "num": "5-6", "name": "49번", "addr": "걸매길100번길 5-6", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "50", "num": "8-8", "name": "50번", "addr": "걸매길100번길 8-8", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "51", "num": "19-8", "name": "51번", "addr": "걸매길100번길 19-8", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "52", "num": "22", "name": "52번", "addr": "걸매길100번길 22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "53", "num": "23-8", "name": "53번", "addr": "걸매길100번길 23-8", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "54", "num": "26", "name": "54번", "addr": "걸매길100번길 26", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "55", "num": "29", "name": "55번", "addr": "걸매길100번길 29", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "56", "num": "34-4", "name": "56번", "addr": "걸매길100번길 34-4", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "57", "num": "34-10", "name": "57번", "addr": "걸매길100번길 34-10", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "58", "num": "34-7", "name": "58번", "addr": "걸매길100번길 34-7", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "59", "num": "39", "name": "59번", "addr": "걸매길100번길 39", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "60", "num": "42", "name": "60번", "addr": "걸매길100번길 42", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "61", "num": "46", "name": "61번", "addr": "걸매길100번길 46", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "62", "num": "150", "name": "62번", "addr": "걸매길 150", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "63", "num": "148", "name": "63번", "addr": "걸매길 148", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "64", "num": "146", "name": "64번", "addr": "걸매길 146", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "65", "num": "142", "name": "65번", "addr": "걸매길 142", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "66", "num": "138", "name": "66번", "addr": "걸매길 138", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "67", "num": "130", "name": "67번", "addr": "걸매길 130", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "68", "num": "124", "name": "68번", "addr": "걸매길 124", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "69", "num": "166", "name": "69번", "addr": "걸매길 166", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "70", "num": "167", "name": "70번", "addr": "걸매길 167", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "71", "num": "168", "name": "71번", "addr": "걸매길 168", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "72", "num": "177-5", "name": "72번", "addr": "걸매길 177-5", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "73", "num": "178-12", "name": "73번", "addr": "걸매길 178-12", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "74", "num": "178-7", "name": "74번", "addr": "걸매길 178-7", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "75", "num": "188-16", "name": "75번", "addr": "걸매길 188-16", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "76", "num": "188-22", "name": "76번", "addr": "걸매길 188-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "77", "num": "188-7", "name": "77번", "addr": "걸매길 188-7", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "78", "num": "191", "name": "78번", "addr": "걸매길 191", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "79", "num": "198-2", "name": "79번", "addr": "걸매길 198-2", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "80", "num": "198-12", "name": "80번", "addr": "걸매길 198-12", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "81", "num": "198-14", "name": "81번", "addr": "걸매길 198-14", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "82", "num": "202", "name": "82번", "addr": "걸매길 202", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "83", "num": "210-6", "name": "83번", "addr": "걸매길 210-6", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "84", "num": "210-10", "name": "84번", "addr": "걸매길 210-10", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "85", "num": "210-5", "name": "85번", "addr": "걸매길 210-5", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "86", "num": "209-9", "name": "86번", "addr": "걸매길 209-9", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "87", "num": "209-11", "name": "87번", "addr": "걸매길 209-11", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "88", "num": "209-13", "name": "88번", "addr": "걸매길 209-13", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "89", "num": "209-25", "name": "89번", "addr": "걸매길 209-25", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "90", "num": "209-16", "name": "90번", "addr": "걸매길 209-16", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "91", "num": "209-12", "name": "91번", "addr": "걸매길 209-12", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "92", "num": "209-6", "name": "92번", "addr": "걸매길 209-6", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "93", "num": "267", "name": "93번", "addr": "걸매길 267", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "94", "num": "273-10", "name": "94번", "addr": "걸매길 273-10", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "95", "num": "23-2", "name": "95번", "addr": "인주산단로 23-2", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "96", "num": "23-4", "name": "96번", "addr": "인주산단로 23-4", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "97", "num": "23-10", "name": "97번", "addr": "인주산단로 23-10", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "98", "num": "23-12", "name": "98번", "addr": "인주산단로 23-12", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "99", "num": "23-16", "name": "99번", "addr": "인주산단로 23-16", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "100", "num": "23-22", "name": "100번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "101", "num": "23-22", "name": "101번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "102", "num": "23-22", "name": "102번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "103", "num": "23-22", "name": "103번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "104", "num": "23-22", "name": "104번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "105", "num": "23-22", "name": "105번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "106", "num": "23-22", "name": "106번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "107", "num": "23-22", "name": "107번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "108", "num": "23-22", "name": "108번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "109", "num": "23-22", "name": "109번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "110", "num": "23-22", "name": "110번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "111", "num": "23-22", "name": "111번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "112", "num": "23-22", "name": "112번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "113", "num": "23-22", "name": "113번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "114", "num": "23-22", "name": "114번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "115", "num": "23-22", "name": "115번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "116", "num": "23-22", "name": "116번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "117", "num": "23-22", "name": "117번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "118", "num": "23-22", "name": "118번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "119", "num": "23-22", "name": "119번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "120", "num": "23-22", "name": "120번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "121", "num": "23-22", "name": "121번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "122", "num": "23-22", "name": "122번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "123", "num": "23-22", "name": "123번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "124", "num": "23-22", "name": "124번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "125", "num": "23-22", "name": "125번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "126", "num": "23-22", "name": "126번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "127", "num": "23-22", "name": "127번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "128", "num": "23-22", "name": "128번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "129", "num": "23-22", "name": "129번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "130", "num": "23-22", "name": "130번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "131", "num": "23-22", "name": "131번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "132", "num": "23-22", "name": "132번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "133", "num": "23-22", "name": "133번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "134", "num": "23-22", "name": "134번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "135", "num": "23-22", "name": "135번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "136", "num": "23-22", "name": "136번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "137", "num": "23-22", "name": "137번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "138", "num": "23-22", "name": "138번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "139", "num": "23-22", "name": "139번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "140", "num": "23-22", "name": "140번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "141", "num": "23-22", "name": "141번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "142", "num": "23-22", "name": "142번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "143", "num": "23-22", "name": "143번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "144", "num": "23-22", "name": "144번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "145", "num": "23-22", "name": "145번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "146", "num": "23-22", "name": "146번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "147", "num": "23-22", "name": "147번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "148", "num": "23-22", "name": "148번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "149", "num": "23-22", "name": "149번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "150", "num": "23-22", "name": "150번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "151", "num": "23-22", "name": "151번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "152", "num": "23-22", "name": "152번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "153", "num": "23-22", "name": "153번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "154", "num": "23-22", "name": "154번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "155", "num": "23-22", "name": "155번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "156", "num": "23-22", "name": "156번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "157", "num": "23-22", "name": "157번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "158", "num": "23-22", "name": "158번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "159", "num": "23-22", "name": "159번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "160", "num": "23-22", "name": "160번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "161", "num": "23-22", "name": "161번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "162", "num": "23-22", "name": "162번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "163", "num": "23-22", "name": "163번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "164", "num": "23-22", "name": "164번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "165", "num": "23-22", "name": "165번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "166", "num": "23-22", "name": "166번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "167", "num": "23-22", "name": "167번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "168", "num": "23-22", "name": "168번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "169", "num": "23-22", "name": "169번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "170", "num": "23-22", "name": "170번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "171", "num": "23-22", "name": "171번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "172", "num": "23-22", "name": "172번", "addr": "인주산단로 23-22", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "173", "num": "23-26", "name": "173번", "addr": "인주산단로 23-26", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "174", "num": "23-26", "name": "174번", "addr": "인주산단로 23-26", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "175", "num": "23-28", "name": "175번", "addr": "인주산단로 23-28", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "176", "num": "23-30", "name": "176번", "addr": "인주산단로 23-30", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "177", "num": "23-30", "name": "177번", "addr": "인주산단로 23-30", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "178", "num": "23-30", "name": "178번", "addr": "인주산단로 23-30", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "179", "num": "23-30", "name": "179번", "addr": "인주산단로 23-30", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "180", "num": "23-30", "name": "180번", "addr": "인주산단로 23-30", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "181", "num": "23-38", "name": "181번", "addr": "인주산단로 23-38", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "182", "num": "47-37", "name": "182번", "addr": "인주산단로 47-37", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "183", "num": "178", "name": "183번", "addr": "서해로 178", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "184", "num": "1577-127", "name": "184번", "addr": "아산만로1578번길 1577-127", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "185", "num": "1577-122", "name": "185번", "addr": "아산만로1578번길 1577-122", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "186", "num": "1577-122", "name": "186번", "addr": "아산만로1578번길 1577-122", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "187", "num": "75-80", "name": "187번", "addr": "인주산단로 75-80", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "188", "num": "75-82", "name": "188번", "addr": "인주산단로 75-82", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "189", "num": "75-78", "name": "189번", "addr": "인주산단로 75-78", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "190", "num": "75-79", "name": "190번", "addr": "인주산단로 75-79", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "191", "num": "75-77", "name": "191번", "addr": "인주산단로 75-77", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "192", "num": "75-75", "name": "192번", "addr": "인주산단로 75-75", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "193", "num": "75-81", "name": "193번", "addr": "인주산단로 75-81", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "194", "num": "23-50", "name": "194번", "addr": "인주산단로 23-50", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "195", "num": "75-61", "name": "195번", "addr": "인주산단로 75-61", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "196", "num": "75-39", "name": "196번", "addr": "인주산단로 75-39", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "197", "num": "75-29", "name": "197번", "addr": "인주산단로 75-29", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "198", "num": "75-27", "name": "198번", "addr": "인주산단로 75-27", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "199", "num": "67", "name": "199번", "addr": "인주산단로 67", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "200", "num": "65", "name": "200번", "addr": "인주산단로 65", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "201", "num": "47-20", "name": "201번", "addr": "인주산단로 47-20", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "202", "num": "23-100", "name": "202번", "addr": "인주산단로 23-100", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "203", "num": "23-120", "name": "203번", "addr": "인주산단로 23-120", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "204", "num": "123-81", "name": "204번", "addr": "인주산단로 123-81", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "205", "num": "123-63", "name": "205번", "addr": "인주산단로 123-63", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "206", "num": "123-59", "name": "206번", "addr": "인주산단로 123-59", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "207", "num": "123-51", "name": "207번", "addr": "인주산단로 123-51", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "208", "num": "123-47", "name": "208번", "addr": "인주산단로 123-47", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "209", "num": "123-35", "name": "209번", "addr": "인주산단로 123-35", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "210", "num": "123-25", "name": "210번", "addr": "인주산단로 123-25", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "211", "num": "111", "name": "211번", "addr": "인주산단로 111", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "212", "num": "91", "name": "212번", "addr": "인주산단로 91", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "213", "num": "87", "name": "213번", "addr": "인주산단로 87", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "214", "num": "75-32", "name": "214번", "addr": "인주산단로 75-32", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "215", "num": "75-60", "name": "215번", "addr": "인주산단로 75-60", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "216", "num": "123-160", "name": "216번", "addr": "인주산단로 123-160", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "217", "num": "177-127", "name": "217번", "addr": "인주산단로 177-127", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "218", "num": "177-111", "name": "218번", "addr": "인주산단로 177-111", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "219", "num": "177-95", "name": "219번", "addr": "인주산단로 177-95", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "220", "num": "177-91", "name": "220번", "addr": "인주산단로 177-91", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "221", "num": "151", "name": "221번", "addr": "인주산단로 151", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "222", "num": "141", "name": "222번", "addr": "인주산단로 141", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "223", "num": "123-16", "name": "223번", "addr": "인주산단로 123-16", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "224", "num": "123-30", "name": "224번", "addr": "인주산단로 123-30", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "225", "num": "123-32", "name": "225번", "addr": "인주산단로 123-32", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "226", "num": "123-34", "name": "226번", "addr": "인주산단로 123-34", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "227", "num": "123-36", "name": "227번", "addr": "인주산단로 123-36", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "228", "num": "123-38", "name": "228번", "addr": "인주산단로 123-38", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "229", "num": "123-40", "name": "229번", "addr": "인주산단로 123-40", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "230", "num": "123-46", "name": "230번", "addr": "인주산단로 123-46", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "231", "num": "123-68", "name": "231번", "addr": "인주산단로 123-68", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "232", "num": "123-70", "name": "232번", "addr": "인주산단로 123-70", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "233", "num": "123-80", "name": "233번", "addr": "인주산단로 123-80", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}, {"seq": "234", "num": "123-90", "name": "234번", "addr": "인주산단로 123-90", "guide": "🗺 참고지도 확인<br>→ 주소와 건물번호 확인<br>→ 방문 후 상태를 기록"}];
+
+let pageIndex=0;
+const pageSize=3;
+
+function showScreen(id){
+document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+setTimeout(()=>document.getElementById(id).classList.add('active'),30);
+}
+setTimeout(()=>showScreen('menu'),3000);
+
+function startVisit(){
+pageIndex=0;
+renderVisit();
+showScreen('visit');
+}
+
+function key(i){return "geolmae_full_status_"+i}
+function memoKey(i){return "geolmae_full_memo_"+i}
+
+function renderVisit(){
+const start=pageIndex*pageSize;
+const end=Math.min(start+pageSize,houses.length);
+document.getElementById("pageText").innerText=(pageIndex+1)+" / "+Math.ceil(houses.length/pageSize);
+let html="";
+for(let i=start;i<end;i++){
+const h=houses[i];
+const saved=localStorage.getItem(key(i))||"";
+const memo=localStorage.getItem(memoKey(i))||"";
+html+=`
+<div class="house-card">
+  <div class="house-head">
+    <div class="house-num">${h.num}</div>
+    <div class="house-name">${h.name}<div class="house-addr">${h.addr}</div></div>
+  </div>
+  <div class="status-line">
+    <button class="status-btn done ${saved==='방문완료'?'saved':''}" onclick="saveStatus(${i},'방문완료')">방문</button>
+    <button class="status-btn absent ${saved==='부재'?'saved':''}" onclick="saveStatus(${i},'부재')">부재</button>
+    <button class="status-btn revisit ${saved==='재방문'?'saved':''}" onclick="saveStatus(${i},'재방문')">재방문</button>
+    <button class="status-btn reject ${saved==='거절'?'saved':''}" onclick="saveStatus(${i},'거절')">거절</button>
+    <button class="status-btn etc ${saved==='기타'?'saved':''}" onclick="toggleEtc(${i})">기타</button>
+  </div>
+  <div class="etc-panel" id="etc_${i}">
+    <div class="etc-grid">
+      <button class="etc-choice" onclick="saveEtcChoice(${i},'창고')">창고</button>
+      <button class="etc-choice" onclick="saveEtcChoice(${i},'축사')">축사</button>
+      <button class="etc-choice" onclick="saveEtcChoice(${i},'공터')">공터</button>
+      <button class="etc-choice" onclick="saveEtcChoice(${i},'폐가')">폐가</button>
+      <button class="etc-choice" onclick="saveEtcChoice(${i},'방문사절')">방문사절</button>
+      <button class="etc-choice" onclick="saveEtc(${i})">직접입력</button>
+    </div>
+  </div>
+  <div class="memo-line" onclick="editMemo(${i})">${memo ? '메모: '+memo : '메모 없음'}</div>
+  <div class="map-toggle" onclick="toggleMap(${i})">🗺 참고지도 ▼</div>
+  <div class="map-box" id="map_${i}">
+    <div class="mini-map"></div>
+    <div class="guide-text">${h.guide}</div>
+  </div>
+</div>`;
+}
+document.getElementById("houseList").innerHTML=html;
+updateProgress();
+}
+
+function saveStatus(i,status){
+localStorage.setItem(key(i),status);
+renderVisit();
+}
+
+function toggleEtc(i){
+const panel=document.getElementById("etc_"+i);
+if(!panel) return;
+panel.style.display=panel.style.display==="block"?"none":"block";
+}
+
+function saveEtcChoice(i,text){
+localStorage.setItem(key(i),"기타");
+localStorage.setItem(memoKey(i),text);
+renderVisit();
+}
+
+function saveEtc(i){
+const memo=prompt("기타 내용을 입력하세요\\n예: 창고 / 축사 / 공터 / 폐가 / 방문사절", localStorage.getItem(memoKey(i))||"");
+if(memo!==null){
+localStorage.setItem(key(i),"기타");
+localStorage.setItem(memoKey(i),memo.trim()||"기타");
+renderVisit();
+}
+}
+
+function editMemo(i){
+const now=localStorage.getItem(memoKey(i))||"";
+const memo=prompt("메모를 입력하세요",now);
+if(memo!==null){
+if(memo.trim()) localStorage.setItem(memoKey(i),memo.trim());
+else localStorage.removeItem(memoKey(i));
+renderVisit();
+}
+}
+
+function toggleMap(i){
+const box=document.getElementById("map_"+i);
+if(!box) return;
+box.style.display=box.style.display==="block"?"none":"block";
+}
+
+function nextPage(){
+const maxPage=Math.ceil(houses.length/pageSize)-1;
+if(pageIndex<maxPage){pageIndex++;renderVisit();}
+}
+
+function prevPage(){
+if(pageIndex>0){pageIndex--;renderVisit();}
+}
+
+function updateProgress(){
+let done=0;
+houses.forEach((_,i)=>{if(localStorage.getItem(key(i)))done++});
+const percent=Math.round(done/houses.length*100);
+document.getElementById("progressText").innerText=done+" / "+houses.length+" ("+percent+"%)";
+document.getElementById("barFill").style.width=percent+"%";
+}
+</script>
+</body>
+</html>
