@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>인주회중 야외봉사기록</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR","Malgun Gothic",sans-serif;background:#f5f7fb;color:#111}
+.screen{display:none;min-height:100vh;padding:18px}
+.screen.active{display:block}
+.wrap{max-width:520px;margin:0 auto}
+.card{background:#fff;border:2px solid #153b63;border-radius:22px;padding:20px;margin:14px 0;box-shadow:0 6px 16px rgba(0,0,0,.08)}
+h1,h2,h3{color:#153b63;text-align:center;margin:8px 0 14px}
+.title{font-size:26px;font-weight:900;text-align:center;color:#153b63;margin-top:12px}
+.verse{line-height:1.7;font-size:18px;text-align:center;background:#eef5ff;border-radius:18px;padding:18px;margin:20px 0}
+button{width:100%;border:0;border-radius:16px;padding:15px 12px;margin:7px 0;font-size:18px;font-weight:800;background:#153b63;color:white}
+button.sub{background:#e8eef7;color:#153b63}
+button.green{background:#1d8f45}
+button.yellow{background:#b98200}
+button.red{background:#b42318}
+button.gray{background:#555}
+button.small{font-size:15px;padding:10px;border-radius:12px;margin:4px 0}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.topbar{display:flex;gap:8px;margin-bottom:10px}
+.topbar button{font-size:14px;padding:10px;margin:0}
+.badge{display:inline-block;background:#eef5ff;color:#153b63;border:1px solid #153b63;border-radius:99px;padding:5px 10px;font-weight:800;margin:4px}
+.progress{height:18px;background:#e8e8e8;border-radius:99px;overflow:hidden;margin:10px 0}
+.bar{height:100%;width:0;background:#1d8f45}
+.house{border:1px solid #d8dce5;border-radius:16px;padding:14px;margin:10px 0;background:#fff}
+.house.done{background:#e4f8ea}
+.house.absent{background:#fff3cd}
+.house.reject{background:#ffe1df}
+.house.closed{background:#eeeeee}
+.house .addr{font-size:18px;font-weight:900}
+.house .memo{font-size:14px;color:#444;margin-top:5px}
+.status{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:10px}
+textarea,input,select{width:100%;font-size:17px;padding:12px;border:1px solid #cbd3df;border-radius:14px;margin:6px 0}
+.mapbox{height:280px;border:2px solid #153b63;border-radius:18px;overflow:hidden;background:#eef5ff;margin:12px 0}
+.mapbox iframe{width:100%;height:100%;border:0}
+.list{font-size:17px;line-height:1.8}
+.pair{background:#f7f9fc;border:1px solid #d8dce5;border-radius:14px;padding:12px;margin:8px 0}
+.footer{text-align:center;color:#777;font-size:13px;margin:18px 0}
+</style>
+</head>
+<body>
+
+<section id="start" class="screen active">
+  <div class="wrap">
+    <div class="card">
+      <div class="title">인주회중</div>
+      <div class="verse">
+        “여러분의 수고가 주 안에서 헛되지 않다는 것을 아십시오.”<br>
+        <b>고린도 전서 15:58</b>
+      </div>
+      <h2>야외봉사에 참여를 환영합니다!</h2>
+      <button onclick="go('home')">시작하기</button>
+    </div>
+  </div>
+</section>
+
+<section id="home" class="screen">
+  <div class="wrap">
+    <div class="card">
+      <h1>인주회중 야외봉사기록</h1>
+      <div id="brief" class="list"></div>
+      <button onclick="go('territory')">🏠 호별방문</button>
+      <button onclick="go('stand')">📚 전시대</button>
+      <button onclick="go('today')">👥 오늘 참여</button>
+      <button onclick="go('leader')">👨‍💼 인도자</button>
+    </div>
+  </div>
+</section>
+
+<section id="territory" class="screen">
+  <div class="wrap">
+    <div class="topbar"><button class="sub" onclick="go('home')">← 홈</button></div>
+    <div class="card">
+      <h2>호별방문 구역 선택</h2>
+      <button onclick="openArea('all')">📍 걸매리 전체</button>
+      <button onclick="openArea('gm1')">01_01 걸매리 마을회관A</button>
+      <button onclick="openArea('gm2')">01_02 걸매리 마을회관B</button>
+      <button onclick="openArea('gm3')">01_03 걸매리 인주공단A</button>
+      <button onclick="openArea('gm4')">01_04 걸매리 인주공단B</button>
+      <button class="sub" onclick="alert('문방리·대음리·관암리·밀두리·공세리는 다음 단계에서 같은 방식으로 추가합니다.')">다른 구역 준비중</button>
+    </div>
+  </div>
+</section>
+
+<section id="area" class="screen">
+  <div class="wrap">
+    <div class="topbar">
+      <button class="sub" onclick="go('territory')">← 구역</button>
+      <button class="sub" onclick="locateMe()">GPS 현재위치</button>
+    </div>
+    <div class="card">
+      <h2 id="areaTitle"></h2>
+      <div>
+        <span class="badge" id="countBadge"></span>
+        <span class="badge" id="rateBadge"></span>
+      </div>
+      <div class="progress"><div id="progressBar" class="bar"></div></div>
+      <div class="mapbox" id="mapBox"></div>
+      <button class="sub" onclick="toggleOnlyLeft()">오늘 갈 집만 보기</button>
+      <div id="houses"></div>
+    </div>
+  </div>
+</section>
+
+<section id="today" class="screen">
+  <div class="wrap">
+    <div class="topbar"><button class="sub" onclick="go('home')">← 홈</button></div>
+    <div class="card">
+      <h2>오늘 참여</h2>
+      <input id="personName" placeholder="이름 입력">
+      <button onclick="addPerson()">참여하기</button>
+      <button class="red" onclick="clearToday()">오늘 명단 초기화</button>
+      <h3>참여자 명단</h3>
+      <div id="peopleList" class="list"></div>
+    </div>
+  </div>
+</section>
+
+<section id="leader" class="screen">
+  <div class="wrap">
+    <div class="topbar"><button class="sub" onclick="go('home')">← 홈</button></div>
+    <div class="card">
+      <h2>인도자</h2>
+      <h3>수동 짝 편성</h3>
+      <select id="p1"></select>
+      <select id="p2"></select>
+      <select id="pairArea">
+        <option value="">담당 구역 선택</option>
+        <option>01_01 걸매리 마을회관A</option>
+        <option>01_02 걸매리 마을회관B</option>
+        <option>01_03 걸매리 인주공단A</option>
+        <option>01_04 걸매리 인주공단B</option>
+      </select>
+      <button onclick="makePair()">짝 만들기</button>
+      <button class="red" onclick="clearPairs()">짝 편성 초기화</button>
+      <h3>편성 결과</h3>
+      <div id="pairList"></div>
+      <h3>남은 사람</h3>
+      <div id="remainList" class="list"></div>
+    </div>
+  </div>
+</section>
+
+<section id="stand" class="screen">
+  <div class="wrap">
+    <div class="topbar"><button class="sub" onclick="go('home')">← 홈</button></div>
+    <div class="card">
+      <h2>전시대</h2>
+      <button onclick="standApply()">오늘 전시대 신청</button>
+      <button class="red" onclick="clearStand()">전시대 기록 초기화</button>
+      <div id="standList" class="list"></div>
+    </div>
+  </div>
+</section>
+
+<script>
+const K='inju_v2_';
+const areas={
+ all:{name:'걸매리 전체', map:'https://maps.google.com/maps?q=충남%20아산시%20인주면%20걸매리&t=m&z=15&output=embed'},
+ gm1:{name:'01_01 걸매리 마을회관A', map:'https://maps.google.com/maps?q=충남%20아산시%20인주면%20걸매길100번길&t=m&z=17&output=embed'},
+ gm2:{name:'01_02 걸매리 마을회관B', map:'https://maps.google.com/maps?q=충남%20아산시%20인주면%20걸매길100번길%2034&t=m&z=17&output=embed'},
+ gm3:{name:'01_03 걸매리 인주공단A', map:'https://maps.google.com/maps?q=충남%20아산시%20인주면%20현대로%201230&t=m&z=17&output=embed'},
+ gm4:{name:'01_04 걸매리 인주공단B', map:'https://maps.google.com/maps?q=충남%20아산시%20인주면%20현대로%201181&t=m&z=17&output=embed'}
+};
+const houses={
+ gm1:[
+  ['1','걸매길100번길 5-5',''],['2','걸매길100번길 5-3',''],['3','걸매길100번길 5-9',''],
+  ['4','걸매길100번길 5-13',''],['5','걸매길100번길 5-15',''],['6','걸매길100번길 8-6','']
+ ],
+ gm2:[
+  ['1','걸매길100번길 5-6',''],['2','걸매길100번길 8-8',''],['3','걸매길100번길 19-8',''],
+  ['4','걸매길100번길 22',''],['5','걸매길100번길 23-8',''],['6','걸매길100번길 26',''],
+  ['7','걸매길100번길 29',''],['8','걸매길100번길 34-4',''],['9','걸매길100번길 34-10',''],
+  ['10','걸매길100번길 34-7',''],['11','걸매길100번길 39','']
+ ],
+ gm3:[
+  ['1','현대로 1232','유진에어테크'],['2','현대로 1230','유진테크 사랑방'],
+  ['3','현대로 1231','금문산업 / 방문거절 표시 필요'],['4','현대로 1209-40','동화마루 창고'],
+  ['5','현대로 1209-41','폐가']
+ ],
+ gm4:[
+  ['1','현대로 1181-5','코리아용접'],['2','현대로 1181-6','한성공업사'],
+  ['3','현대로 1181-11','한솔티씨에스'],['4','현대로 1181-35','여원 다육이'],
+  ['5','현대로 1181-40','동화기업']
+ ]
+};
+houses.all=[...houses.gm1,...houses.gm2,...houses.gm3,...houses.gm4];
+
+let current='all', onlyLeft=false;
+
+function save(k,v){localStorage.setItem(K+k,JSON.stringify(v))}
+function load(k,d){try{return JSON.parse(localStorage.getItem(K+k))??d}catch(e){return d}}
+function go(id){
+ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+ document.getElementById(id).classList.add('active');
+ renderAll();
+}
+function todayKey(){return new Date().toLocaleDateString('ko-KR')}
+function renderBrief(){
+ const people=load('people',[]);
+ let done=0,total=houses.all.length;
+ houses.all.forEach((h,i)=>{if(load('status_all_'+i,'')==='done')done++});
+ document.getElementById('brief').innerHTML=
+ `📅 ${todayKey()}<br>👥 오늘 참여: <b>${people.length}명</b><br>🗺️ 담당 구역: <b>걸매리</b><br>🏠 전체 방문 대상: <b>${total}</b><br>✅ 완료: <b>${done}</b><br>⏳ 남은 가구: <b>${total-done}</b>`;
+}
+function openArea(id){current=id;onlyLeft=false;go('area');renderArea()}
+function renderArea(){
+ const a=areas[current], arr=houses[current];
+ document.getElementById('areaTitle').textContent=a.name;
+ document.getElementById('mapBox').innerHTML=`<iframe src="${a.map}" loading="lazy"></iframe>`;
+ let done=0;
+ arr.forEach((h,i)=>{if(load('status_'+current+'_'+i,'')==='done')done++});
+ let rate=arr.length?Math.round(done/arr.length*100):0;
+ document.getElementById('countBadge').textContent=`완료 ${done}/${arr.length}`;
+ document.getElementById('rateBadge').textContent=`진행률 ${rate}%`;
+ document.getElementById('progressBar').style.width=rate+'%';
+ const box=document.getElementById('houses'); box.innerHTML='';
+ arr.forEach((h,i)=>{
+  const st=load('status_'+current+'_'+i,'');
+  if(onlyLeft && st==='done') return;
+  const memo=load('memo_'+current+'_'+i,h[2]||'');
+  const div=document.createElement('div');
+  div.className='house '+st;
+  div.innerHTML=`<div class="addr">${h[0]}. ${h[1]}</div>
+    <div class="memo">${memo||''}</div>
+    <textarea placeholder="메모 입력" oninput="setMemo(${i},this.value)">${memo||''}</textarea>
+    <div class="status">
+      <button class="small green" onclick="setStatus(${i},'done')">방문함</button>
+      <button class="small yellow" onclick="setStatus(${i},'absent')">부재중</button>
+      <button class="small red" onclick="setStatus(${i},'reject')">방문거절</button>
+      <button class="small gray" onclick="setStatus(${i},'closed')">폐문부재</button>
+    </div>
+    <button class="small sub" onclick="setStatus(${i},'')">상태해제</button>`;
+  box.appendChild(div);
+ });
+}
+function setStatus(i,st){save('status_'+current+'_'+i,st);renderArea();renderBrief()}
+function setMemo(i,v){save('memo_'+current+'_'+i,v)}
+function toggleOnlyLeft(){onlyLeft=!onlyLeft;renderArea()}
+function locateMe(){
+ if(!navigator.geolocation){alert('GPS를 사용할 수 없습니다.');return}
+ navigator.geolocation.getCurrentPosition(p=>{
+  const lat=p.coords.latitude,lng=p.coords.longitude;
+  document.getElementById('mapBox').innerHTML=`<iframe src="https://maps.google.com/maps?q=${lat},${lng}&z=17&output=embed"></iframe>`;
+ },()=>alert('현재 위치 권한을 허용해 주세요.'));
+}
+function addPerson(){
+ const input=document.getElementById('personName');
+ const name=input.value.trim();
+ if(!name)return;
+ let people=load('people',[]);
+ if(!people.includes(name))people.push(name);
+ save('people',people); input.value=''; renderAll();
+}
+function clearToday(){if(confirm('오늘 참여 명단을 초기화할까요?')){save('people',[]);save('pairs',[]);renderAll()}}
+function renderPeople(){
+ const people=load('people',[]);
+ document.getElementById('peopleList').innerHTML=people.length?people.map((p,i)=>`${i+1}. ${p}`).join('<br>'):'아직 참여자가 없습니다.';
+}
+function pairedNames(){
+ return load('pairs',[]).flatMap(p=>[p.a,p.b]);
+}
+function renderLeader(){
+ const people=load('people',[]), used=pairedNames(), remain=people.filter(p=>!used.includes(p));
+ ['p1','p2'].forEach(id=>{
+  const s=document.getElementById(id); s.innerHTML='<option value="">선택</option>'+remain.map(p=>`<option>${p}</option>`).join('');
+ });
+ const pairs=load('pairs',[]);
+ document.getElementById('pairList').innerHTML=pairs.length?pairs.map((p,i)=>`<div class="pair"><b>${i+1}조</b><br>${p.a} + ${p.b}<br>담당: ${p.area||'미지정'}</div>`).join(''):'아직 편성된 짝이 없습니다.';
+ document.getElementById('remainList').innerHTML=remain.length?remain.join('<br>'):'남은 사람이 없습니다.';
+}
+function makePair(){
+ const a=document.getElementById('p1').value,b=document.getElementById('p2').value,area=document.getElementById('pairArea').value;
+ if(!a||!b||a===b){alert('서로 다른 두 사람을 선택하세요.');return}
+ let pairs=load('pairs',[]); pairs.push({a,b,area}); save('pairs',pairs); renderAll();
+}
+function clearPairs(){if(confirm('짝 편성을 초기화할까요?')){save('pairs',[]);renderAll()}}
+function standApply(){
+ const name=prompt('전시대 신청자 이름');
+ if(!name)return;
+ let list=load('stand',[]); list.push({name,day:todayKey()}); save('stand',list);renderStand();
+}
+function clearStand(){if(confirm('전시대 기록을 초기화할까요?')){save('stand',[]);renderStand()}}
+function renderStand(){
+ const list=load('stand',[]);
+ document.getElementById('standList').innerHTML=list.length?list.map((x,i)=>`${i+1}. ${x.day} - ${x.name}`).join('<br>'):'전시대 신청 기록이 없습니다.';
+}
+function renderAll(){renderBrief();renderPeople();renderLeader();renderStand();if(document.getElementById('area').classList.contains('active'))renderArea()}
+renderAll();
+</script>
+</body>
+</html>
