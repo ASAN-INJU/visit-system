@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta name="theme-color" content="#153b63">
+  <title>인주회중 야외봉사시스템 v3</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <section id="start" class="screen active">
+    <div class="wrap">
+      <div class="card center">
+        <div class="app-title">인주회중 야외봉사시스템 v3</div>
+        <div class="verse">
+          “여러분의 수고가 주 안에서 헛되지 않다는 것을 아십시오.”<br>
+          <b>고린도 전서 15:58</b>
+        </div>
+        <h2>야외봉사에 참여를 환영합니다!</h2>
+        <button onclick="go('home')">시작하기</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="home" class="screen">
+    <div class="wrap">
+      <div class="card">
+        <h1>인주회중 야외봉사시스템 v3</h1>
+        <div id="brief" class="brief"></div>
+        <button onclick="go('territory')">🏠 호별방문</button>
+        <button onclick="go('stand')">📚 전시대</button>
+        <button onclick="go('today')">👥 오늘 참여</button>
+        <button onclick="go('leader')">👨‍💼 인도자</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="territory" class="screen">
+    <div class="wrap">
+      <div class="topbar"><button class="sub" onclick="go('home')">← 홈</button></div>
+      <div class="card">
+        <h2>호별방문 구역 선택</h2>
+        <div id="areaButtons"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="area" class="screen">
+    <div class="wrap">
+      <div class="topbar">
+        <button class="sub" onclick="go('territory')">← 구역</button>
+        <button class="sub" onclick="locateMe()">GPS 현재위치</button>
+      </div>
+      <div class="card">
+        <h2 id="areaTitle"></h2>
+        <div>
+          <span class="badge" id="countBadge"></span>
+          <span class="badge" id="rateBadge"></span>
+        </div>
+        <div class="progress"><div id="progressBar" class="bar"></div></div>
+        <div class="mapbox" id="mapBox"></div>
+        <button class="sub" onclick="toggleOnlyLeft()">오늘 갈 집만 보기</button>
+        <div id="houses"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="today" class="screen">
+    <div class="wrap">
+      <div class="topbar"><button class="sub" onclick="go('home')">← 홈</button></div>
+      <div class="card">
+        <h2>오늘 참여</h2>
+        <input id="personName" placeholder="이름 입력">
+        <button onclick="addPerson()">참여하기</button>
+        <button class="red" onclick="clearToday()">오늘 명단 초기화</button>
+        <h3>참여자 명단</h3>
+        <div id="peopleList" class="list"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="leader" class="screen">
+    <div class="wrap">
+      <div class="topbar"><button class="sub" onclick="go('home')">← 홈</button></div>
+      <div class="card">
+        <h2>인도자</h2>
+        <div id="leaderDash" class="brief"></div>
+        <h3>수동 짝 편성</h3>
+        <select id="p1"></select>
+        <select id="p2"></select>
+        <select id="pairArea"></select>
+        <button onclick="makePair()">짝 만들기</button>
+        <button class="red" onclick="clearPairs()">짝 편성 초기화</button>
+        <h3>편성 결과</h3>
+        <div id="pairList"></div>
+        <h3>남은 사람</h3>
+        <div id="remainList" class="list"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="stand" class="screen">
+    <div class="wrap">
+      <div class="topbar"><button class="sub" onclick="go('home')">← 홈</button></div>
+      <div class="card">
+        <h2>전시대</h2>
+        <button onclick="standApply()">오늘 전시대 신청</button>
+        <button class="red" onclick="clearStand()">전시대 기록 초기화</button>
+        <div id="standList" class="list"></div>
+      </div>
+    </div>
+  </section>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
