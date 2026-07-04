@@ -3,207 +3,97 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>인주회중 야외봉사시스템 v3</title>
-<style>
-*{box-sizing:border-box}
-body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR","Malgun Gothic",sans-serif;background:#f5f7fb;color:#111}
-.screen{display:none;min-height:100vh;padding:18px;justify-content:center;align-items:center}
-.active{display:flex}
-.card{width:100%;max-width:460px;background:#fff;border:2px solid #153b63;border-radius:24px;padding:24px 18px;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.08)}
-h1,h2{color:#153b63;margin:0 0 18px}
-.welcome{font-size:26px;font-weight:800;line-height:1.45;margin:22px 0}
-.verse{margin:24px 0;padding:18px;border:1px solid #153b63;border-radius:16px;background:#f8fbff;font-size:18px;line-height:1.7}
-button{width:100%;border:0;border-radius:15px;padding:15px 12px;margin:7px 0;font-size:18px;font-weight:800;background:#153b63;color:white}
-button.light{background:#eef3f8;color:#153b63;border:1px solid #153b63}
-button.back{background:#777}
-.info{background:#f8fbff;border:1px solid #d8e5f0;border-radius:16px;padding:14px;margin:12px 0;font-size:17px;line-height:1.7}
-.house{border:1px solid #ddd;border-radius:16px;padding:14px;margin:12px 0;text-align:left;background:#fff}
-.house-title{font-size:18px;font-weight:900;color:#153b63;margin-bottom:8px}
-.addr{font-size:15px;color:#555;margin-bottom:10px}
-.status-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.status-grid button{font-size:15px;padding:11px;margin:0}
-.done{background:#2e7d32!important}
-.absent{background:#f9a825!important;color:#111!important}
-.reject{background:#c62828!important}
-.closed{background:#555!important}
-.memo{width:100%;margin-top:10px;padding:11px;border-radius:10px;border:1px solid #ccc;font-size:15px}
-</style>
+
+<link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-<section id="screenVerse" class="screen active">
-  <div class="card">
-    <h1>인주회중</h1>
-    <div class="welcome">야외봉사에<br>참여를 환영합니다!</div>
-    <div class="verse">
-      “왕국의 좋은 소식이<br>사람이 거주하는 온 땅에<br>전파될 것입니다.”<br>
-      <b>— 마태복음 24:14</b>
-    </div>
-    <button onclick="showScreen('screenMain')">시작하기</button>
-  </div>
-</section>
+<header class="top">
 
-<section id="screenMain" class="screen">
-  <div class="card">
-    <h2>메인 메뉴</h2>
-    <button onclick="showScreen('screenVisit')">🏠 호별방문</button>
-    <button class="light">👥 전시대 신청</button>
-    <button class="light">📊 봉사현황</button>
-    <button class="light">⚙️ 설정</button>
-    <button class="back" onclick="showScreen('screenVerse')">처음으로</button>
-  </div>
-</section>
+<h1>걸매리 마을회관 A</h1>
 
-<section id="screenVisit" class="screen">
-  <div class="card">
-    <h2>호별방문</h2>
-    <button onclick="showScreen('screenGeolmaeri')">걸매리</button>
-    <button class="light">문방리</button>
-    <button class="light">대음리</button>
-    <button class="light">도흥리</button>
-    <button class="light">해암리</button>
-    <button class="light">금성리</button>
-    <button class="light">관암리</button>
-    <button class="light">공세리</button>
-    <button class="light">밀두리</button>
-    <button class="light">아산리</button>
-    <button class="back" onclick="showScreen('screenMain')">뒤로가기</button>
-  </div>
-</section>
+<div class="progress">
 
-<section id="screenGeolmaeri" class="screen">
-  <div class="card">
-    <h2>걸매리 구역 선택</h2>
-    <button class="light" onclick="openArea('a')">01-01 걸매리 마을회관 A</button>
-    <button class="light" onclick="openArea('b')">01-02 걸매리 마을회관 B</button>
-    <button class="light" onclick="openArea('c')">01-03 걸매리 인주공단 A</button>
-    <button class="light" onclick="openArea('d')">01-04 걸매리 인주공단 B</button>
-    <button class="back" onclick="showScreen('screenVisit')">뒤로가기</button>
-  </div>
-</section>
+<div class="progressText">
+<span id="current">1</span> /
+<span id="total">41</span>
+</div>
 
-<section id="screenArea" class="screen">
-  <div class="card">
-    <h2 id="areaTitle">구역명</h2>
-    <div class="info" id="progressBox">진행률 계산 중</div>
-    <div id="houseList"></div>
-    <button class="back" onclick="showScreen('screenGeolmaeri')">뒤로가기</button>
-  </div>
-</section>
+<div class="progressBar">
+<div id="progressFill"></div>
+</div>
 
-<script>
-const areas = {
-  a:{
-    name:"01-01 걸매리 마을회관 A",
-    houses:[
-      "걸매길100번길 5-5",
-      "걸매길100번길 5-3",
-      "걸매길100번길 5-9",
-      "걸매길100번길 5-13",
-      "걸매길100번길 5-15",
-      "걸매길100번길 8-6"
-    ]
-  },
-  b:{
-    name:"01-02 걸매리 마을회관 B",
-    houses:[
-      "걸매길100번길 5-6",
-      "걸매길100번길 8-8",
-      "걸매길100번길 19-8",
-      "걸매길100번길 22",
-      "걸매길100번길 23-8",
-      "걸매길100번길 26"
-    ]
-  },
-  c:{
-    name:"01-03 걸매리 인주공단 A",
-    houses:[
-      "현대로 1232 유진에어테크",
-      "현대로 1230 유진테크 사랑방",
-      "현대로 1231 금문산업",
-      "현대로 1209-40 동화마루",
-      "현대로 1209-41",
-      "현대로 1181-5 코리아용접"
-    ]
-  },
-  d:{
-    name:"01-04 걸매리 인주공단 B",
-    houses:[
-      "현대로 1181-6 한성공업사",
-      "현대로 1181-11 한솔티씨에스",
-      "현대로 1181-35 여원 다육이",
-      "현대로 1181-40 동화기업",
-      "걸매길100번길 29",
-      "걸매길100번길 34-4",
-      "걸매길100번길 34-10",
-      "걸매길100번길 39"
-    ]
-  }
-};
+<div id="progressPercent">
+0%
+</div>
 
-let currentArea = "";
+</div>
 
-function showScreen(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
+</header>
 
-function openArea(areaKey){
-  currentArea = areaKey;
-  document.getElementById('areaTitle').innerText = areas[areaKey].name;
-  renderHouses();
-  showScreen('screenArea');
-}
 
-function storageKey(index, type){
-  return "v3_" + currentArea + "_" + index + "_" + type;
-}
+<main>
 
-function setStatus(index, status){
-  localStorage.setItem(storageKey(index,"status"), status);
-  renderHouses();
-}
+<div class="houseCard">
 
-function saveMemo(index, value){
-  localStorage.setItem(storageKey(index,"memo"), value);
-}
+<div class="number" id="houseNumber">
+89-10
+</div>
 
-function renderHouses(){
-  const list = document.getElementById("houseList");
-  const houses = areas[currentArea].houses;
-  let doneCount = 0;
-  let html = "";
+<div class="name" id="houseName">
+주찬양교회
+</div>
 
-  houses.forEach((addr, i)=>{
-    const status = localStorage.getItem(storageKey(i,"status")) || "";
-    const memo = localStorage.getItem(storageKey(i,"memo")) || "";
+<div class="address" id="houseAddress">
+걸매길 89-10
+</div>
 
-    if(status) doneCount++;
+<div class="buttons">
 
-    html += `
-      <div class="house">
-        <div class="house-title">${i+1}번</div>
-        <div class="addr">${addr}</div>
-        <div class="status-grid">
-          <button class="${status==='방문함'?'done':''}" onclick="setStatus(${i},'방문함')">방문함</button>
-          <button class="${status==='부재'?'absent':''}" onclick="setStatus(${i},'부재')">부재</button>
-          <button class="${status==='방문거절'?'reject':''}" onclick="setStatus(${i},'방문거절')">방문거절</button>
-          <button class="${status==='폐문부재'?'closed':''}" onclick="setStatus(${i},'폐문부재')">폐문부재</button>
-        </div>
-        <input class="memo" placeholder="메모 입력" value="${memo}" oninput="saveMemo(${i}, this.value)">
-      </div>
-    `;
-  });
+<button class="visit" onclick="setStatus('visit')">
+방문함
+</button>
 
-  const percent = houses.length ? Math.round(doneCount / houses.length * 100) : 0;
-  document.getElementById("progressBox").innerHTML =
-    `전체 대상: <b>${houses.length}호</b><br>
-     기록 완료: <b>${doneCount}호</b><br>
-     진행률: <b>${percent}%</b>`;
+<button class="absent" onclick="setStatus('absent')">
+부재
+</button>
 
-  list.innerHTML = html;
-}
-</script>
+<button class="reject" onclick="setStatus('reject')">
+방문거절
+</button>
+
+<button class="closed" onclick="setStatus('closed')">
+폐문부재
+</button>
+
+</div>
+
+<textarea
+id="memo"
+placeholder="메모를 입력하세요"
+></textarea>
+
+<div class="nav">
+
+<button onclick="prevHouse()">
+◀ 이전
+</button>
+
+<button onclick="nextHouse()">
+다음 ▶
+</button>
+
+</div>
+
+</div>
+
+</main>
+
+<script src="houses.js"></script>
+<script src="app.js"></script>
 
 </body>
 </html>
