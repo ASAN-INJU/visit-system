@@ -1,33 +1,44 @@
 const houses = [
-
-{
-number:"89-10",
-name:"주찬양교회",
-address:"걸매길 89-10"
-},
-
-{
-number:"89-9",
-name:"",
-address:"걸매길 89-9"
-},
-
-{
-number:"89-6",
-name:"",
-address:"걸매길 89-6"
-},
-
-{
-number:"93",
-name:"걸매리 마을회관",
-address:"걸매길 93"
-},
-
-{
-number:"95",
-name:"걸매리 주민체육실",
-address:"걸매길 95"
-}
-
+  {number:"89-10",name:"주찬양교회",address:"걸매길 89-10"},
+  {number:"89-9",name:"",address:"걸매길 89-9"},
+  {number:"89-6",name:"",address:"걸매길 89-6"},
+  {number:"93",name:"걸매리 마을회관",address:"걸매길 93"},
+  {number:"95",name:"걸매리 주민체육실",address:"걸매길 95"},
+  {number:"99",name:"",address:"걸매길 99"},
+  {number:"8",name:"폐가",address:"걸매길97번길 8"},
+  {number:"9-9",name:"",address:"걸매길97번길 9-9"},
+  {number:"31",name:"",address:"걸매길97번길 31"},
+  {number:"39",name:"",address:"걸매길97번길 39"},
+  {number:"34",name:"",address:"걸매길97번길 34"},
+  {number:"32",name:"",address:"걸매길97번길 32"},
+  {number:"30",name:"",address:"걸매길97번길 30"},
+  {number:"26-3",name:"신천지교인 (주의요망)",address:"걸매길97번길 26-3"},
+  {number:"26-5",name:"폐가",address:"걸매길97번길 26-5"},
+  {number:"26-4",name:"",address:"걸매길97번길 26-4"},
+  {number:"22",name:"",address:"걸매길97번길 22"},
+  {number:"20",name:"",address:"걸매길97번길 20"},
+  {number:"12",name:"",address:"걸매길97번길 12"},
+  {number:"10-7",name:"",address:"걸매길97번길 10-7"},
+  {number:"10-9",name:"",address:"걸매길97번길 10-9"}
+,
+  {number:"10-11",name:"",address:"걸매길97번길 10-11"},
+  {number:"10-13",name:"",address:"걸매길97번길 10-13"},
+  {number:"10-15",name:"",address:"걸매길97번길 10-15"},
+  {number:"7",name:"",address:"걸매길97번길 7"},
+  {number:"5",name:"",address:"걸매길97번길 5"},
+  {number:"3",name:"",address:"걸매길97번길 3"},
+  {number:"1",name:"",address:"걸매길97번길 1"},
+  {number:"102",name:"",address:"걸매길 102"},
+  {number:"104",name:"",address:"걸매길 104"},
+  {number:"106",name:"",address:"걸매길 106"},
+  {number:"108",name:"",address:"걸매길 108"},
+  {number:"110",name:"",address:"걸매길 110"},
+  {number:"112",name:"",address:"걸매길 112"},
+  {number:"114",name:"",address:"걸매길 114"},
+  {number:"116",name:"",address:"걸매길 116"},
+  {number:"118",name:"",address:"걸매길 118"},
+  {number:"120",name:"",address:"걸매길 120"},
+  {number:"122",name:"",address:"걸매길 122"},
+  {number:"124",name:"",address:"걸매길 124"},
+  {number:"126",name:"",address:"걸매길 126"}
 ];
