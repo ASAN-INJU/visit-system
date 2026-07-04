@@ -65,3 +65,20 @@ document.addEventListener("DOMContentLoaded", function(){
   document.getElementById("memo").addEventListener("input", saveMemo);
   loadHouse();
 });
+function loadArea(area){
+
+    currentArea = area;
+
+    if(area === "A"){
+        currentHouses = housesA;
+        document.querySelector("h1").innerText = "걸매리 마을회관 A";
+    }
+
+    if(area === "B"){
+        currentHouses = housesB;
+        document.querySelector("h1").innerText = "걸매리 마을회관 B";
+    }
+
+    currentIndex = 0;
+    loadHouse();
+}
