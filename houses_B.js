@@ -1,1 +1,1 @@
-const housesB=[
+const housesB = [];
