@@ -14,7 +14,17 @@
 <header class="top">
 
 <h1>걸매리 마을회관 A</h1>
+<div class="areaSelect">
 
+<button onclick="loadArea('A')">
+마을회관 A
+</button>
+
+<button onclick="loadArea('B')">
+마을회관 B
+</button>
+
+</div>
 <div class="progress">
 
 <div class="progressText">
@@ -52,6 +62,22 @@
 </div>
 
 <div class="buttons">
+  .areaSelect{
+display:flex;
+gap:10px;
+margin-bottom:20px;
+}
+
+.areaSelect button{
+flex:1;
+padding:15px;
+font-size:18px;
+font-weight:bold;
+border:none;
+border-radius:12px;
+background:#153b63;
+color:white;
+}
 
 <button class="visit" onclick="setStatus('visit')">
 방문함
