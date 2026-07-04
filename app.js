@@ -1,66 +1,41 @@
+// 현재 선택된 구역
+let currentArea = "A";
+
+// 현재 집 번호
 let currentIndex = 0;
 
-function key(type){
-  return "geolmaeriA_" + currentIndex + "_" + type;
-}
+// 현재 사용할 데이터
+let currentHouses = houses;
 
-function loadHouse(){
-  const house = houses[currentIndex];
+// 구역 변경
+function loadArea(area){
 
-  document.getElementById("current").innerText = currentIndex + 1;
-  document.getElementById("total").innerText = houses.length;
+    currentArea = area;
 
-  document.getElementById("houseNumber").innerText = house.number;
-  document.getElementById("houseName").innerText = house.name || "이름 없음";
-  document.getElementById("houseAddress").innerText = house.address;
-
-  document.getElementById("memo").value =
-    localStorage.getItem(key("memo")) || "";
-
-  updateProgress();
-}
-
-function setStatus(status){
-  localStorage.setItem(key("status"), status);
-  updateProgress();
-}
-
-function saveMemo(){
-  localStorage.setItem(key("memo"), document.getElementById("memo").value);
-}
-
-function nextHouse(){
-  saveMemo();
-  if(currentIndex < houses.length - 1){
-    currentIndex++;
-    loadHouse();
-  }
-}
-
-function prevHouse(){
-  saveMemo();
-  if(currentIndex > 0){
-    currentIndex--;
-    loadHouse();
-  }
-}
-
-function updateProgress(){
-  let done = 0;
-
-  houses.forEach((h, i)=>{
-    if(localStorage.getItem("geolmaeriA_" + i + "_status")){
-      done++;
+    if(area==="A"){
+        currentHouses = housesA;
     }
-  });
 
-  const percent = Math.round(done / houses.length * 100);
+    if(area==="B"){
+        currentHouses = housesB;
+    }
 
-  document.getElementById("progressFill").style.width = percent + "%";
-  document.getElementById("progressPercent").innerText = percent + "%";
+    currentIndex = 0;
+
+    loadHouse();
+
 }
 
-document.addEventListener("DOMContentLoaded", function(){
-  document.getElementById("memo").addEventListener("input", saveMemo);
-  loadHouse();
-});
+// 현재 집 표시
+function loadHouse(){
+
+    const house = currentHouses[currentIndex];
+
+    document.getElementById("current").innerText=currentIndex+1;
+    document.getElementById("total").innerText=currentHouses.length;
+
+    document.getElementById("houseNumber").innerText=house.number;
+    document.getElementById("houseName").innerText=house.name;
+    document.getElementById("houseAddress").innerText=house.address;
+
+}
