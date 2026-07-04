@@ -1,4 +1,4 @@
-const houses = [
+const housesA=[
   {number:"89-10",name:"주찬양교회",address:"걸매길 89-10"},
   {number:"89-9",name:"",address:"걸매길 89-9"},
   {number:"89-6",name:"",address:"걸매길 89-6"},
