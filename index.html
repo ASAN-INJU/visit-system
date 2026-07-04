@@ -6,114 +6,47 @@
 <title>인주회중 야외봉사시스템 v3</title>
 <style>
 *{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR","Malgun Gothic",sans-serif;
-  background:#f5f7fb;
-  color:#111;
-}
-.screen{
-  display:none;
-  min-height:100vh;
-  padding:22px;
-  justify-content:center;
-  align-items:center;
-}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR","Malgun Gothic",sans-serif;background:#f5f7fb;color:#111}
+.screen{display:none;min-height:100vh;padding:22px;justify-content:center;align-items:center}
 .active{display:flex}
-.card{
-  width:100%;
-  max-width:430px;
-  background:#fff;
-  border:2px solid #153b63;
-  border-radius:24px;
-  padding:26px 20px;
-  text-align:center;
-  box-shadow:0 8px 24px rgba(0,0,0,.08);
-}
-h1,h2{
-  color:#153b63;
-  margin:0 0 20px;
-}
-.welcome{
-  font-size:26px;
-  font-weight:800;
-  line-height:1.45;
-  margin:22px 0;
-}
-.verse{
-  margin:24px 0;
-  padding:18px;
-  border:1px solid #153b63;
-  border-radius:16px;
-  background:#f8fbff;
-  font-size:18px;
-  line-height:1.7;
-}
-button{
-  width:100%;
-  border:0;
-  border-radius:15px;
-  padding:16px 14px;
-  margin:8px 0;
-  font-size:19px;
-  font-weight:800;
-  background:#153b63;
-  color:white;
-}
-button.light{
-  background:#eef3f8;
-  color:#153b63;
-  border:1px solid #153b63;
-}
-button.back{
-  background:#777;
-}
-.small{
-  font-size:14px;
-  color:#666;
-  margin-top:18px;
-}
+.card{width:100%;max-width:430px;background:#fff;border:2px solid #153b63;border-radius:24px;padding:26px 20px;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.08)}
+h1,h2{color:#153b63;margin:0 0 20px}
+.welcome{font-size:26px;font-weight:800;line-height:1.45;margin:22px 0}
+.verse{margin:24px 0;padding:18px;border:1px solid #153b63;border-radius:16px;background:#f8fbff;font-size:18px;line-height:1.7}
+button{width:100%;border:0;border-radius:15px;padding:16px 14px;margin:8px 0;font-size:19px;font-weight:800;background:#153b63;color:white}
+button.light{background:#eef3f8;color:#153b63;border:1px solid #153b63}
+button.back{background:#777}
+.info{background:#f8fbff;border:1px solid #d8e5f0;border-radius:16px;padding:14px;margin:12px 0;font-size:17px;line-height:1.7}
 </style>
 </head>
-
 <body>
 
-<!-- 1. 성구 첫 화면 -->
 <section id="screenVerse" class="screen active">
   <div class="card">
     <h1>인주회중</h1>
     <div class="welcome">야외봉사에<br>참여를 환영합니다!</div>
-
     <div class="verse">
-      “왕국의 좋은 소식이<br>
-      사람이 거주하는 온 땅에<br>
-      전파될 것입니다.”<br>
+      “왕국의 좋은 소식이<br>사람이 거주하는 온 땅에<br>전파될 것입니다.”<br>
       <b>— 마태복음 24:14</b>
     </div>
-
     <button onclick="showScreen('screenMain')">시작하기</button>
   </div>
 </section>
 
-<!-- 2. 메인 메뉴 -->
 <section id="screenMain" class="screen">
   <div class="card">
     <h2>메인 메뉴</h2>
-
     <button onclick="showScreen('screenVisit')">🏠 호별방문</button>
     <button class="light">👥 전시대 신청</button>
     <button class="light">📊 봉사현황</button>
     <button class="light">⚙️ 설정</button>
-
     <button class="back" onclick="showScreen('screenVerse')">처음으로</button>
   </div>
 </section>
 
-<!-- 3. 호별방문 지역 선택 -->
 <section id="screenVisit" class="screen">
   <div class="card">
     <h2>호별방문</h2>
-
     <button onclick="showScreen('screenGeolmaeri')">걸매리</button>
     <button class="light">문방리</button>
     <button class="light">대음리</button>
@@ -124,22 +57,35 @@ button.back{
     <button class="light">공세리</button>
     <button class="light">밀두리</button>
     <button class="light">아산리</button>
-
     <button class="back" onclick="showScreen('screenMain')">뒤로가기</button>
   </div>
 </section>
 
-<!-- 4. 걸매리 구역 선택 -->
 <section id="screenGeolmaeri" class="screen">
   <div class="card">
     <h2>걸매리 구역 선택</h2>
-
-    <button class="light">01-01 걸매리 마을회관 A</button>
-    <button class="light">01-02 걸매리 마을회관 B</button>
-    <button class="light">01-03 걸매리 인주공단 A</button>
-    <button class="light">01-04 걸매리 인주공단 B</button>
-
+    <button class="light" onclick="openArea('01-01 걸매리 마을회관 A')">01-01 걸매리 마을회관 A</button>
+    <button class="light" onclick="openArea('01-02 걸매리 마을회관 B')">01-02 걸매리 마을회관 B</button>
+    <button class="light" onclick="openArea('01-03 걸매리 인주공단 A')">01-03 걸매리 인주공단 A</button>
+    <button class="light" onclick="openArea('01-04 걸매리 인주공단 B')">01-04 걸매리 인주공단 B</button>
     <button class="back" onclick="showScreen('screenVisit')">뒤로가기</button>
+  </div>
+</section>
+
+<section id="screenArea" class="screen">
+  <div class="card">
+    <h2 id="areaTitle">구역명</h2>
+
+    <div class="info">
+      전체 대상: <b>0호</b><br>
+      방문 완료: <b>0호</b><br>
+      진행률: <b>0%</b>
+    </div>
+
+    <button>🗺 지도 보기</button>
+    <button>🏠 집 목록 보기</button>
+    <button>📋 오늘 봉사 종료</button>
+    <button class="back" onclick="showScreen('screenGeolmaeri')">뒤로가기</button>
   </div>
 </section>
 
@@ -147,6 +93,11 @@ button.back{
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+}
+
+function openArea(name){
+  document.getElementById('areaTitle').innerText = name;
+  showScreen('screenArea');
 }
 </script>
 
