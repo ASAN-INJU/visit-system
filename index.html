@@ -2,135 +2,153 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#153b63">
-<title>인주회중 야외봉사시스템 v3.0.1</title>
-<link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="css/style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>인주회중 야외봉사시스템 v3</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR","Malgun Gothic",sans-serif;
+  background:#f5f7fb;
+  color:#111;
+}
+.screen{
+  display:none;
+  min-height:100vh;
+  padding:22px;
+  justify-content:center;
+  align-items:center;
+}
+.active{display:flex}
+.card{
+  width:100%;
+  max-width:430px;
+  background:#fff;
+  border:2px solid #153b63;
+  border-radius:24px;
+  padding:26px 20px;
+  text-align:center;
+  box-shadow:0 8px 24px rgba(0,0,0,.08);
+}
+h1,h2{
+  color:#153b63;
+  margin:0 0 20px;
+}
+.welcome{
+  font-size:26px;
+  font-weight:800;
+  line-height:1.45;
+  margin:22px 0;
+}
+.verse{
+  margin:24px 0;
+  padding:18px;
+  border:1px solid #153b63;
+  border-radius:16px;
+  background:#f8fbff;
+  font-size:18px;
+  line-height:1.7;
+}
+button{
+  width:100%;
+  border:0;
+  border-radius:15px;
+  padding:16px 14px;
+  margin:8px 0;
+  font-size:19px;
+  font-weight:800;
+  background:#153b63;
+  color:white;
+}
+button.light{
+  background:#eef3f8;
+  color:#153b63;
+  border:1px solid #153b63;
+}
+button.back{
+  background:#777;
+}
+.small{
+  font-size:14px;
+  color:#666;
+  margin-top:18px;
+}
+</style>
 </head>
+
 <body>
-<section id="start" class="screen active">
-  <div class="wrap">
-    <div class="card center">
-      <div class="app-title">인주회중 야외봉사시스템 v3</div>
-      <div class="version">v3.0.1</div>
-      <div class="verse">
-        “여러분의 수고가 주 안에서 헛되지 않다는 것을 아십시오.”<br>
-        <b>고린도 전서 15:58</b>
-      </div>
-      <h2>야외봉사에 참여를 환영합니다!</h2>
-      <button onclick="go('home')">시작하기</button>
-      <button class="sub" onclick="resumeVisit()">이어서 방문하기</button>
+
+<!-- 1. 성구 첫 화면 -->
+<section id="screenVerse" class="screen active">
+  <div class="card">
+    <h1>인주회중</h1>
+    <div class="welcome">야외봉사에<br>참여를 환영합니다!</div>
+
+    <div class="verse">
+      “왕국의 좋은 소식이<br>
+      사람이 거주하는 온 땅에<br>
+      전파될 것입니다.”<br>
+      <b>— 마태복음 24:14</b>
     </div>
+
+    <button onclick="showScreen('screenMain')">시작하기</button>
   </div>
 </section>
 
-<section id="home" class="screen">
-  <div class="wrap">
-    <div class="card">
-      <h1>인주회중 야외봉사시스템 v3</h1>
-      <div id="brief" class="brief"></div>
-      <button onclick="go('territory')">🏠 호별방문</button>
-      <button onclick="go('stand')">📚 전시대</button>
-      <button onclick="go('today')">👥 오늘 참여</button>
-      <button onclick="go('leader')">👨‍💼 인도자</button>
-      <button class="sub" onclick="go('tools')">⚙️ 관리</button>
-    </div>
+<!-- 2. 메인 메뉴 -->
+<section id="screenMain" class="screen">
+  <div class="card">
+    <h2>메인 메뉴</h2>
+
+    <button onclick="showScreen('screenVisit')">🏠 호별방문</button>
+    <button class="light">👥 전시대 신청</button>
+    <button class="light">📊 봉사현황</button>
+    <button class="light">⚙️ 설정</button>
+
+    <button class="back" onclick="showScreen('screenVerse')">처음으로</button>
   </div>
 </section>
 
-<section id="territory" class="screen">
-  <div class="wrap">
-    <div class="topbar"><button class="sub" onclick="go('home')">← 홈</button></div>
-    <div class="card">
-      <h2>호별방문 구역 선택</h2>
-      <input id="searchBox" placeholder="주소·건물번호·메모 검색" oninput="searchHouses(this.value)">
-      <div id="searchResult"></div>
-      <hr>
-      <div id="areaButtons"></div>
-    </div>
+<!-- 3. 호별방문 지역 선택 -->
+<section id="screenVisit" class="screen">
+  <div class="card">
+    <h2>호별방문</h2>
+
+    <button onclick="showScreen('screenGeolmaeri')">걸매리</button>
+    <button class="light">문방리</button>
+    <button class="light">대음리</button>
+    <button class="light">도흥리</button>
+    <button class="light">해암리</button>
+    <button class="light">금성리</button>
+    <button class="light">관암리</button>
+    <button class="light">공세리</button>
+    <button class="light">밀두리</button>
+    <button class="light">아산리</button>
+
+    <button class="back" onclick="showScreen('screenMain')">뒤로가기</button>
   </div>
 </section>
 
-<section id="area" class="screen">
-  <div class="wrap">
-    <div class="topbar">
-      <button class="sub" onclick="go('territory')">← 구역</button>
-      <button class="sub" onclick="locateMe()">GPS 현재위치</button>
-    </div>
-    <div class="card">
-      <h2 id="areaTitle"></h2>
-      <div>
-        <span class="badge" id="countBadge"></span>
-        <span class="badge" id="rateBadge"></span>
-      </div>
-      <div class="progress"><div id="progressBar" class="bar"></div></div>
-      <div class="mapbox" id="mapBox"></div>
-      <button class="sub" onclick="toggleOnlyLeft()">오늘 갈 집만 보기</button>
-      <div id="houses"></div>
-    </div>
+<!-- 4. 걸매리 구역 선택 -->
+<section id="screenGeolmaeri" class="screen">
+  <div class="card">
+    <h2>걸매리 구역 선택</h2>
+
+    <button class="light">01-01 걸매리 마을회관 A</button>
+    <button class="light">01-02 걸매리 마을회관 B</button>
+    <button class="light">01-03 걸매리 인주공단 A</button>
+    <button class="light">01-04 걸매리 인주공단 B</button>
+
+    <button class="back" onclick="showScreen('screenVisit')">뒤로가기</button>
   </div>
 </section>
 
-<section id="today" class="screen">
-  <div class="wrap">
-    <div class="topbar"><button class="sub" onclick="go('home')">← 홈</button></div>
-    <div class="card">
-      <h2>오늘 참여</h2>
-      <input id="personName" placeholder="이름 입력">
-      <button onclick="addPerson()">참여하기</button>
-      <button class="red" onclick="clearToday()">오늘 명단 초기화</button>
-      <h3>참여자 명단</h3>
-      <div id="peopleList" class="list"></div>
-    </div>
-  </div>
-</section>
+<script>
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+</script>
 
-<section id="leader" class="screen">
-  <div class="wrap">
-    <div class="topbar"><button class="sub" onclick="go('home')">← 홈</button></div>
-    <div class="card">
-      <h2>인도자 대시보드</h2>
-      <div id="leaderDash" class="brief"></div>
-      <h3>수동 짝 편성</h3>
-      <select id="p1"></select>
-      <select id="p2"></select>
-      <select id="pairArea"></select>
-      <button onclick="makePair()">짝 만들기</button>
-      <button class="red" onclick="clearPairs()">짝 편성 초기화</button>
-      <h3>편성 결과</h3>
-      <div id="pairList"></div>
-      <h3>남은 사람</h3>
-      <div id="remainList" class="list"></div>
-    </div>
-  </div>
-</section>
-
-<section id="stand" class="screen">
-  <div class="wrap">
-    <div class="topbar"><button class="sub" onclick="go('home')">← 홈</button></div>
-    <div class="card">
-      <h2>전시대</h2>
-      <button onclick="standApply()">오늘 전시대 신청</button>
-      <button class="red" onclick="clearStand()">전시대 기록 초기화</button>
-      <div id="standList" class="list"></div>
-    </div>
-  </div>
-</section>
-
-<section id="tools" class="screen">
-  <div class="wrap">
-    <div class="topbar"><button class="sub" onclick="go('home')">← 홈</button></div>
-    <div class="card">
-      <h2>관리</h2>
-      <button onclick="exportBackup()">백업 내보내기</button>
-      <textarea id="backupBox" placeholder="백업 내용이 여기에 표시됩니다. 복원할 때는 여기에 붙여넣으세요."></textarea>
-      <button onclick="importBackup()">백업 복원</button>
-      <button class="red" onclick="resetVisitOnly()">방문기록만 초기화</button>
-    </div>
-  </div>
-</section>
-
-<script src="js/app.js"></script>
 </body>
 </html>
