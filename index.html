@@ -7,16 +7,26 @@
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR","Malgun Gothic",sans-serif;background:#f5f7fb;color:#111}
-.screen{display:none;min-height:100vh;padding:22px;justify-content:center;align-items:center}
+.screen{display:none;min-height:100vh;padding:18px;justify-content:center;align-items:center}
 .active{display:flex}
-.card{width:100%;max-width:430px;background:#fff;border:2px solid #153b63;border-radius:24px;padding:26px 20px;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.08)}
-h1,h2{color:#153b63;margin:0 0 20px}
+.card{width:100%;max-width:460px;background:#fff;border:2px solid #153b63;border-radius:24px;padding:24px 18px;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.08)}
+h1,h2{color:#153b63;margin:0 0 18px}
 .welcome{font-size:26px;font-weight:800;line-height:1.45;margin:22px 0}
 .verse{margin:24px 0;padding:18px;border:1px solid #153b63;border-radius:16px;background:#f8fbff;font-size:18px;line-height:1.7}
-button{width:100%;border:0;border-radius:15px;padding:16px 14px;margin:8px 0;font-size:19px;font-weight:800;background:#153b63;color:white}
+button{width:100%;border:0;border-radius:15px;padding:15px 12px;margin:7px 0;font-size:18px;font-weight:800;background:#153b63;color:white}
 button.light{background:#eef3f8;color:#153b63;border:1px solid #153b63}
 button.back{background:#777}
 .info{background:#f8fbff;border:1px solid #d8e5f0;border-radius:16px;padding:14px;margin:12px 0;font-size:17px;line-height:1.7}
+.house{border:1px solid #ddd;border-radius:16px;padding:14px;margin:12px 0;text-align:left;background:#fff}
+.house-title{font-size:18px;font-weight:900;color:#153b63;margin-bottom:8px}
+.addr{font-size:15px;color:#555;margin-bottom:10px}
+.status-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.status-grid button{font-size:15px;padding:11px;margin:0}
+.done{background:#2e7d32!important}
+.absent{background:#f9a825!important;color:#111!important}
+.reject{background:#c62828!important}
+.closed{background:#555!important}
+.memo{width:100%;margin-top:10px;padding:11px;border-radius:10px;border:1px solid #ccc;font-size:15px}
 </style>
 </head>
 <body>
@@ -64,10 +74,10 @@ button.back{background:#777}
 <section id="screenGeolmaeri" class="screen">
   <div class="card">
     <h2>걸매리 구역 선택</h2>
-    <button class="light" onclick="openArea('01-01 걸매리 마을회관 A')">01-01 걸매리 마을회관 A</button>
-    <button class="light" onclick="openArea('01-02 걸매리 마을회관 B')">01-02 걸매리 마을회관 B</button>
-    <button class="light" onclick="openArea('01-03 걸매리 인주공단 A')">01-03 걸매리 인주공단 A</button>
-    <button class="light" onclick="openArea('01-04 걸매리 인주공단 B')">01-04 걸매리 인주공단 B</button>
+    <button class="light" onclick="openArea('a')">01-01 걸매리 마을회관 A</button>
+    <button class="light" onclick="openArea('b')">01-02 걸매리 마을회관 B</button>
+    <button class="light" onclick="openArea('c')">01-03 걸매리 인주공단 A</button>
+    <button class="light" onclick="openArea('d')">01-04 걸매리 인주공단 B</button>
     <button class="back" onclick="showScreen('screenVisit')">뒤로가기</button>
   </div>
 </section>
@@ -75,29 +85,123 @@ button.back{background:#777}
 <section id="screenArea" class="screen">
   <div class="card">
     <h2 id="areaTitle">구역명</h2>
-
-    <div class="info">
-      전체 대상: <b>0호</b><br>
-      방문 완료: <b>0호</b><br>
-      진행률: <b>0%</b>
-    </div>
-
-    <button>🗺 지도 보기</button>
-    <button>🏠 집 목록 보기</button>
-    <button>📋 오늘 봉사 종료</button>
+    <div class="info" id="progressBox">진행률 계산 중</div>
+    <div id="houseList"></div>
     <button class="back" onclick="showScreen('screenGeolmaeri')">뒤로가기</button>
   </div>
 </section>
 
 <script>
+const areas = {
+  a:{
+    name:"01-01 걸매리 마을회관 A",
+    houses:[
+      "걸매길100번길 5-5",
+      "걸매길100번길 5-3",
+      "걸매길100번길 5-9",
+      "걸매길100번길 5-13",
+      "걸매길100번길 5-15",
+      "걸매길100번길 8-6"
+    ]
+  },
+  b:{
+    name:"01-02 걸매리 마을회관 B",
+    houses:[
+      "걸매길100번길 5-6",
+      "걸매길100번길 8-8",
+      "걸매길100번길 19-8",
+      "걸매길100번길 22",
+      "걸매길100번길 23-8",
+      "걸매길100번길 26"
+    ]
+  },
+  c:{
+    name:"01-03 걸매리 인주공단 A",
+    houses:[
+      "현대로 1232 유진에어테크",
+      "현대로 1230 유진테크 사랑방",
+      "현대로 1231 금문산업",
+      "현대로 1209-40 동화마루",
+      "현대로 1209-41",
+      "현대로 1181-5 코리아용접"
+    ]
+  },
+  d:{
+    name:"01-04 걸매리 인주공단 B",
+    houses:[
+      "현대로 1181-6 한성공업사",
+      "현대로 1181-11 한솔티씨에스",
+      "현대로 1181-35 여원 다육이",
+      "현대로 1181-40 동화기업",
+      "걸매길100번길 29",
+      "걸매길100번길 34-4",
+      "걸매길100번길 34-10",
+      "걸매길100번길 39"
+    ]
+  }
+};
+
+let currentArea = "";
+
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
 
-function openArea(name){
-  document.getElementById('areaTitle').innerText = name;
+function openArea(areaKey){
+  currentArea = areaKey;
+  document.getElementById('areaTitle').innerText = areas[areaKey].name;
+  renderHouses();
   showScreen('screenArea');
+}
+
+function storageKey(index, type){
+  return "v3_" + currentArea + "_" + index + "_" + type;
+}
+
+function setStatus(index, status){
+  localStorage.setItem(storageKey(index,"status"), status);
+  renderHouses();
+}
+
+function saveMemo(index, value){
+  localStorage.setItem(storageKey(index,"memo"), value);
+}
+
+function renderHouses(){
+  const list = document.getElementById("houseList");
+  const houses = areas[currentArea].houses;
+  let doneCount = 0;
+  let html = "";
+
+  houses.forEach((addr, i)=>{
+    const status = localStorage.getItem(storageKey(i,"status")) || "";
+    const memo = localStorage.getItem(storageKey(i,"memo")) || "";
+
+    if(status) doneCount++;
+
+    html += `
+      <div class="house">
+        <div class="house-title">${i+1}번</div>
+        <div class="addr">${addr}</div>
+        <div class="status-grid">
+          <button class="${status==='방문함'?'done':''}" onclick="setStatus(${i},'방문함')">방문함</button>
+          <button class="${status==='부재'?'absent':''}" onclick="setStatus(${i},'부재')">부재</button>
+          <button class="${status==='방문거절'?'reject':''}" onclick="setStatus(${i},'방문거절')">방문거절</button>
+          <button class="${status==='폐문부재'?'closed':''}" onclick="setStatus(${i},'폐문부재')">폐문부재</button>
+        </div>
+        <input class="memo" placeholder="메모 입력" value="${memo}" oninput="saveMemo(${i}, this.value)">
+      </div>
+    `;
+  });
+
+  const percent = houses.length ? Math.round(doneCount / houses.length * 100) : 0;
+  document.getElementById("progressBox").innerHTML =
+    `전체 대상: <b>${houses.length}호</b><br>
+     기록 완료: <b>${doneCount}호</b><br>
+     진행률: <b>${percent}%</b>`;
+
+  list.innerHTML = html;
 }
 </script>
 
