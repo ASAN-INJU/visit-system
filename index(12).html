@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>인주회중 야외봉사 앱</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#153b63">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--navy:#153b63;--blue:#1f65a6;--bg:#f4f7fb;--line:#dbe3ee;--good:#dff5e5;--abs:#fff1c7;--reject:#ffe0e0;--rev:#e6efff;--gray:#eef1f5}
+html,body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR","Malgun Gothic",Arial,sans-serif;background:var(--bg);color:#111;min-height:100%;}
+body{padding-bottom:76px}.screen{display:none;min-height:100vh;padding:14px}.screen.active{display:block}.center{display:flex;align-items:center;justify-content:center}.card{max-width:480px;margin:0 auto;background:white;border:2px solid var(--navy);border-radius:22px;padding:18px;box-shadow:0 8px 24px rgba(0,0,0,.08)}
+.logo{font-size:27px;font-weight:900;color:var(--navy);text-align:center;line-height:1.25}.welcome{font-size:26px;font-weight:900;text-align:center;line-height:1.45;margin:22px 0}.verse{border:1px solid var(--navy);border-radius:16px;padding:16px;text-align:center;line-height:1.7;background:#f9fbff}.btn{border:0;border-radius:14px;padding:13px 12px;font-size:17px;font-weight:900;background:var(--navy);color:white;width:100%;cursor:pointer}.btn.light{background:#e9f0f8;color:var(--navy)}.btn.green{background:#16833c}.btn.red{background:#b93030}.btn.gray{background:#6b7280}.btn.small{font-size:14px;padding:9px;border-radius:11px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.mt{margin-top:12px}.top{max-width:520px;margin:0 auto 10px;display:flex;gap:8px;align-items:center}.title{flex:1;background:var(--navy);color:white;border-radius:15px;padding:12px;text-align:center;font-size:20px;font-weight:900;white-space:nowrap}.back{width:58px;border:0;border-radius:14px;background:#e7edf5;color:var(--navy);font-weight:900;font-size:15px}.menu{max-width:520px;margin:0 auto;display:grid;gap:11px}.menu button{font-size:20px;padding:16px}.jw{display:block;text-align:center;font-weight:900;color:var(--navy);text-decoration:none;margin-top:13px;font-size:18px}.note{font-size:14px;color:#475569;text-align:center;line-height:1.5}.participants{max-width:520px;margin:0 auto;background:white;border-radius:18px;border:1px solid var(--line);padding:10px}.p-tools{display:grid;grid-template-columns:1fr auto;gap:7px;margin-bottom:8px}.p-tools input{border:1px solid var(--line);border-radius:12px;padding:11px;font-size:16px}.p-list{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.person{border:1px solid var(--line);border-radius:11px;padding:8px 4px;text-align:center;font-size:14px;font-weight:800;background:#fff}.person.on{background:var(--good);border-color:#69bd7b}.section-title{font-size:17px;font-weight:900;color:var(--navy);margin:9px 0 7px}.mapbox{height:230px;border-radius:18px;border:2px solid var(--navy);overflow:hidden;background:linear-gradient(135deg,#dbeafe,#f8fafc);position:relative;margin-bottom:10px}.mapbox svg{width:100%;height:100%;display:block}.area-card{background:white;border:1px solid var(--line);border-radius:16px;padding:13px;font-weight:900;display:flex;justify-content:space-between;align-items:center}.badge{font-size:13px;background:#eef2ff;color:var(--navy);border-radius:99px;padding:5px 8px}.progress{background:#e5e7eb;border-radius:99px;overflow:hidden;height:16px}.bar{height:100%;background:var(--blue);width:0%;transition:.2s}.houses{display:grid;gap:8px;max-width:520px;margin:0 auto}.house{background:white;border:1px solid var(--line);border-radius:15px;padding:10px}.house-head{display:flex;justify-content:space-between;gap:8px;font-weight:900;color:#111;margin-bottom:8px}.house-addr{font-size:13px;color:#475569;line-height:1.4}.status-row{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:8px}.status-row button{border:0;border-radius:10px;padding:8px 2px;font-size:12px;font-weight:900}.done{background:var(--good)}.abs{background:var(--abs)}.rej{background:var(--reject)}.etc{background:var(--gray)}.selected{outline:3px solid var(--navy)}textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:14px;padding:12px;font-size:16px;resize:vertical}.check{display:flex;align-items:center;gap:10px;background:white;border:1px solid var(--line);border-radius:15px;padding:13px;font-weight:900}.check input{width:24px;height:24px}.bottom-nav{position:fixed;left:0;right:0;bottom:0;background:white;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:7px 8px calc(7px + env(safe-area-inset-bottom));z-index:99}.bottom-nav button{border:0;background:#eef2f7;border-radius:13px;padding:8px 2px;font-size:13px;font-weight:900;color:var(--navy)}.bottom-nav button.active{background:var(--navy);color:white}.mini{font-size:12px;color:#64748b;text-align:center;margin-top:5px}.hidden{display:none!important}@media(max-width:380px){.p-list{grid-template-columns:repeat(3,1fr)}.person{font-size:13px;padding:7px 2px}.title{font-size:18px}.menu button{font-size:18px}.status-row button{font-size:11px}.logo{font-size:24px}.welcome{font-size:23px}}
+</style>
+</head>
+<body>
+<section id="start" class="screen active center">
+  <div class="card">
+    <div class="logo">인주회중의<br>야외봉사 앱</div>
+    <div class="welcome">즐거운 마음으로<br>봉사합시다!</div>
+    <div class="verse">“왕국의 좋은 소식이<br>사람이 거주하는 온 땅에 전파될 것입니다.”<br><b>— 마태복음 24:14</b></div>
+    <button class="btn mt" onclick="go('home')">시작하기</button>
+    <a class="jw" href="https://www.jw.org/ko/" target="_blank" rel="noopener">JW.ORG</a>
+  </div>
+</section>
+<section id="home" class="screen">
+  <div class="top"><div class="title">인주회중의 야외봉사 앱</div></div>
+  <div class="menu">
+    <button class="btn" onclick="go('participants')">👥 참여자</button>
+    <button class="btn" onclick="go('areas')">🗺 구역 선택</button>
+    <button class="btn" onclick="go('visit')">🏠 호별방문</button>
+    <button class="btn green" onclick="go('finish')">✅ 봉사 종료</button>
+    <div class="card" style="padding:14px"><div class="note">즐거운 마음으로 봉사합시다! — 마태복음 24:14</div><a class="jw" href="https://www.jw.org/ko/" target="_blank" rel="noopener">JW.ORG 바로가기</a></div>
+  </div>
+</section>
+<section id="participants" class="screen">
+  <div class="top"><button class="back" onclick="go('home')">뒤로</button><div class="title">참여자</div></div>
+  <div class="participants">
+    <div class="p-tools"><input id="nameInput" placeholder="이름 입력"><button class="btn small" onclick="addName()">추가</button></div>
+    <div class="section-title">오늘 참여</div>
+    <div id="pList" class="p-list"></div>
+    <div class="mini">이름을 누르면 참여/해제됩니다. 자동 저장됩니다.</div>
+  </div>
+</section>
+<section id="areas" class="screen">
+  <div class="top"><button class="back" onclick="go('home')">뒤로</button><div class="title">구역 선택</div></div>
+  <div class="card" style="max-width:520px;padding:12px">
+    <div class="mapbox" aria-label="걸매리 전체지도">
+      <svg viewBox="0 0 520 300" role="img">
+        <rect width="520" height="300" fill="#eff6ff"/>
+        <path d="M30 210 C120 160 160 260 260 210 S420 170 490 220" stroke="#94a3b8" stroke-width="18" fill="none" opacity=".55"/>
+        <path d="M70 40 L225 55 L205 145 L50 135 Z" fill="#dff5e5" stroke="#153b63" stroke-width="3"/>
+        <path d="M245 55 L470 70 L455 150 L225 145 Z" fill="#fff1c7" stroke="#153b63" stroke-width="3"/>
+        <path d="M55 155 L205 165 L220 260 L70 250 Z" fill="#e6efff" stroke="#153b63" stroke-width="3"/>
+        <path d="M230 165 L455 170 L475 260 L240 260 Z" fill="#ffe0e0" stroke="#153b63" stroke-width="3"/>
+        <text x="115" y="98" font-size="22" font-weight="800" fill="#153b63">마을회관 A</text>
+        <text x="315" y="112" font-size="22" font-weight="800" fill="#153b63">마을회관 B</text>
+        <text x="105" y="213" font-size="22" font-weight="800" fill="#153b63">인주공단 A</text>
+        <text x="325" y="218" font-size="22" font-weight="800" fill="#153b63">인주공단 B</text>
+      </svg>
+    </div>
+    <div class="section-title">걸매리 전체 구역</div>
+    <div class="menu" style="gap:8px">
+      <div class="area-card" onclick="selectArea('마을회관 A')">걸매리 마을회관 A <span class="badge">6집</span></div>
+      <div class="area-card" onclick="selectArea('마을회관 B')">걸매리 마을회관 B <span class="badge">6집</span></div>
+      <div class="area-card" onclick="selectArea('인주공단 A')">걸매리 인주공단 A <span class="badge">6집</span></div>
+      <div class="area-card" onclick="selectArea('인주공단 B')">걸매리 인주공단 B <span class="badge">8집</span></div>
+    </div>
+  </div>
+</section>
+<section id="visit" class="screen">
+  <div class="top"><button class="back" onclick="go('home')">뒤로</button><div id="visitTitle" class="title">호별방문</div></div>
+  <div class="card" style="max-width:520px;padding:12px;margin-bottom:10px">
+    <div style="display:flex;justify-content:space-between;font-weight:900;margin-bottom:8px"><span id="areaName">걸매리 전체</span><span id="progressText">0/0</span></div>
+    <div class="progress"><div id="bar" class="bar"></div></div>
+  </div>
+  <div id="houses" class="houses"></div>
+</section>
+<section id="finish" class="screen">
+  <div class="top"><button class="back" onclick="go('home')">뒤로</button><div class="title">봉사 종료</div></div>
+  <div class="card" style="max-width:520px">
+    <label class="check"><input id="safeCheck" type="checkbox"> 참여인원 안전확인</label>
+    <div class="section-title">기타사항</div>
+    <textarea id="finishMemo" placeholder="예: 특이사항 없음, 다음 방문 참고사항 등"></textarea>
+    <button class="btn green mt" onclick="saveFinish()">종료 내용 저장</button>
+    <button class="btn light mt" onclick="resetToday()">오늘 기록 초기화</button>
+    <div id="finishMsg" class="mini"></div>
+  </div>
+</section>
+<nav class="bottom-nav hidden" id="bottomNav">
+  <button id="navVisit" onclick="go('visit')">🏠<br>호별방문</button>
+  <button id="navAreas" onclick="go('areas')">🗺<br>지도</button>
+  <button id="navParticipants" onclick="go('participants')">👥<br>참여자</button>
+  <button id="navFinish" onclick="go('finish')">✅<br>종료</button>
+</nav>
+<script>
+const $=id=>document.getElementById(id);
+const defaultNames=['김진석','인도자','참여자1','참여자2','참여자3','참여자4','참여자5','참여자6','참여자7','참여자8','참여자9','참여자10','참여자11','참여자12','참여자13','참여자14','참여자15','참여자16'];
+let names=JSON.parse(localStorage.getItem('inju_names')||'null')||defaultNames.map((n,i)=>({id:Date.now()+i,name:n,on:false}));
+let currentArea=localStorage.getItem('inju_area')||'걸매리 전체';
+const areaData={
+ '마을회관 A':['걸매길100번길 5-5','걸매길100번길 5-3','걸매길100번길 5-9','걸매길100번길 5-13','걸매길100번길 5-15','걸매길100번길 8-6'],
+ '마을회관 B':['걸매길100번길 5-6','걸매길100번길 8-8','걸매길100번길 19-8','걸매길100번길 22','걸매길100번길 23-8','걸매길100번길 26'],
+ '인주공단 A':['현대로 1232','현대로 1230','현대로 1231','현대로 1209-40','현대로 1209-41','현대로 1181-5'],
+ '인주공단 B':['현대로 1181-6','현대로 1181-11','현대로 1181-35','현대로 1181-40','아산만로1462번길 7','아산만로1462번길 13-9','아산만로1462번길 13-11','아산만로1462번길 15']
+};
+function allHouses(){return Object.values(areaData).flat()}
+function getHouses(){return currentArea==='걸매리 전체'?allHouses():areaData[currentArea]||allHouses()}
+function go(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');$('bottomNav').classList.toggle('hidden',id==='start');document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.remove('active'));let nav=$('nav'+id.charAt(0).toUpperCase()+id.slice(1));if(nav)nav.classList.add('active');if(id==='participants')renderNames();if(id==='visit')renderHouses();window.scrollTo(0,0)}
+function saveNames(){localStorage.setItem('inju_names',JSON.stringify(names))}
+function renderNames(){let box=$('pList');box.innerHTML='';names.forEach(p=>{let d=document.createElement('div');d.className='person'+(p.on?' on':'');d.textContent=p.name;d.onclick=()=>{p.on=!p.on;saveNames();renderNames()};box.appendChild(d)})}
+function addName(){let v=$('nameInput').value.trim();if(!v)return;names.unshift({id:Date.now(),name:v,on:true});$('nameInput').value='';saveNames();renderNames()}
+function selectArea(a){currentArea=a;localStorage.setItem('inju_area',a);go('visit')}
+function statusKey(addr){return 'inju_status_'+addr}
+function setStatus(addr,st){localStorage.setItem(statusKey(addr),st);renderHouses()}
+function renderHouses(){let list=getHouses();$('areaName').textContent=currentArea;$('visitTitle').textContent='호별방문';let done=list.filter(a=>localStorage.getItem(statusKey(a))).length;$('progressText').textContent=done+'/'+list.length;$('bar').style.width=list.length?Math.round(done/list.length*100)+'%':'0%';let h=$('houses');h.innerHTML='';list.forEach((addr,i)=>{let st=localStorage.getItem(statusKey(addr))||'';let div=document.createElement('div');div.className='house';div.innerHTML=`<div class="house-head"><span>${i+1}. 건물</span><span>${st||'미기록'}</span></div><div class="house-addr">${addr}</div><div class="status-row"><button class="done ${st==='방문함'?'selected':''}" onclick="setStatus('${addr}','방문함')">방문함</button><button class="abs ${st==='부재중'?'selected':''}" onclick="setStatus('${addr}','부재중')">부재중</button><button class="rej ${st==='방문거절'?'selected':''}" onclick="setStatus('${addr}','방문거절')">방문거절</button><button class="etc ${st==='기타'?'selected':''}" onclick="setStatus('${addr}','기타')">기타</button></div>`;h.appendChild(div)})}
+function saveFinish(){localStorage.setItem('inju_safe',$('safeCheck').checked?'yes':'no');localStorage.setItem('inju_finish_memo',$('finishMemo').value);$('finishMsg').textContent='저장되었습니다.'}
+function resetToday(){if(!confirm('오늘 기록을 초기화할까요? 참여자와 방문상태가 지워집니다.'))return;Object.keys(localStorage).filter(k=>k.startsWith('inju_status_')).forEach(k=>localStorage.removeItem(k));names=names.map(p=>({...p,on:false}));saveNames();$('safeCheck').checked=false;$('finishMemo').value='';localStorage.removeItem('inju_safe');localStorage.removeItem('inju_finish_memo');$('finishMsg').textContent='초기화되었습니다.';renderHouses()}
+$('safeCheck').checked=localStorage.getItem('inju_safe')==='yes';$('finishMemo').value=localStorage.getItem('inju_finish_memo')||'';renderNames();renderHouses();
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
+</script>
+</body>
+</html>
